@@ -1,8 +1,11 @@
-﻿using BillyService.Models;
+﻿using Billy.Models;
+using BillyService.Models;
 using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,141 +14,148 @@ namespace BillyService
 {
     public class Contacts
     {
-        private HttpClient client;
+        private RestClient client;
 
         public Contacts(string key)
         {
-            client = new HttpClient();
-            client.BaseAddress = new Uri("https://api.billysbilling.com/v2/");
-            client.DefaultRequestHeaders.Add("X-Access-Token", key);
+            client = new RestClient("https://api.billysbilling.com/v2/");
+            client.AddDefaultHeader("X-Access-Token", key);
         }
 
         // GET /v2/contacts:id
-        public async Task<GetContactRoot> GetContact(string id)
+        public Contact Get(string id)
         {
             try
             {
-                string url = "contacts/" + id;
+                var request = new RestRequest("contacts/" + id, Method.GET);
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
+                request.RequestFormat = DataFormat.Json;
 
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var response = client.Get(request);
 
-                var result = JsonConvert.DeserializeObject<GetContactRoot>(responseBody);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
 
-                return result;
+                    return result.contact;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            catch (HttpRequestException e)
+            catch (Exception)
             {
-                throw new HttpRequestException(e.Message);
+                return null;
             }
         }
 
 
         // GET /v2/contacts
-        public async Task<GetContactListRoot> GetContactList()
+        public List<Contact> List()
         {
             try
             {
-                string url = "contacts/";
+                var request = new RestRequest("contacts/", Method.GET);
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
+                request.RequestFormat = DataFormat.Json;
 
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var response = client.Get(request);
 
-                var result = JsonConvert.DeserializeObject<GetContactListRoot>(responseBody);
-
-                return result;
-            }
-            catch (HttpRequestException e)
-            {
-                throw new HttpRequestException(e.Message);
-            }
-        }
-
-        // POST /v2/contacts
-        public async Task<PostContactRootResult> PostCompany(
-            ContactTypes type,
-            string organization,
-            string name,
-            Countries country,
-            string street,
-            string city,
-            string zipcode,
-            string phone,
-            string vat,
-            bool isCustomer,
-            bool isSupplier,
-            List<ContactPerson> contactPersons)
-        {
-            PostContactRoot root = new PostContactRoot
-            {
-                contact = new PostContact
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    type = ContactTypes.company.ToString(),
-                    organizationId = organization,
-                    name = name,
-                    countryId = Countries.DK.ToString(),
-                    street = street,
-                    cityText = city,
-                    zipcodeText = zipcode,
-                    phone = phone,
-                    registrationNo = vat,
-                    isCustomer = isCustomer,
-                    isSupplier = isSupplier,
-                   contactPersons = contactPersons
+                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+
+                    return result.contacts;
                 }
-            };
-
-            try
-            {
-                string url = "contacts/";
-
-                HttpResponseMessage response = await client.PostAsJsonAsync<PostContactRoot>(url, root);
-                response.EnsureSuccessStatusCode();
-
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                var result = JsonConvert.DeserializeObject<PostContactRootResult>(responseBody);
-
-                return result;
+                else
+                {
+                    return null;
+                }
             }
-            catch (HttpRequestException e)
+            catch (Exception)
             {
-                throw new HttpRequestException(e.Message);
+                return null;
             }
         }
 
         // POST /v2/contacts
-        public async Task<PostContactRootResult> PostCustomer(PostContact contactRoot)
+        public string Create(Contact contact)
         {
-            PostContactRoot root = new PostContactRoot
-            {
-                contact = contactRoot
-            };
-
-            var test = JsonConvert.SerializeObject(root);
-
             try
             {
-                string url = "contacts/";
+                var request = new RestRequest("contacts/", Method.POST);
 
-                HttpResponseMessage response = await client.PostAsJsonAsync<PostContactRoot>(url, root);
-                response.EnsureSuccessStatusCode();
+                request.RequestFormat = DataFormat.Json;
 
-                var responseBody = await response.Content.ReadAsStringAsync();
+                request.AddBody(new
+                {
+                    contact = new
+                    {
+                        organizationId = contact.organizationId,
+                        name = contact.name,
+                        countryId = contact.countryId,
+                        street = contact.street,
+                        zipcodeText = contact.zipcodeText,
+                        cityText = contact.cityText,
+                        phone = contact.phone,
+                        isCustomer = contact.isCustomer,
+                        isSupplier = contact.isSupplier,
+                        contactPersons = new[]
+                        {
+                            new
+                            {
+                                name = contact.contactPersons[0].name,
+                                email = contact.contactPersons[0].email
+                            }
+                        }
+                    }
+                });
 
-                var result = JsonConvert.DeserializeObject<PostContactRootResult>(responseBody);
+                var response = client.Post(request);
 
-                return result;
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+
+                    return result.contacts[0].id;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            catch (HttpRequestException e)
+            catch (Exception)
             {
-                throw new HttpRequestException(e.Message);
+                return null;
+            }
+        }
+
+        public bool Delete(string id)
+        {
+            try
+            {
+                var request = new RestRequest("contacts/" + id, Method.DELETE);
+
+                request.RequestFormat = DataFormat.Json;
+
+                var response = client.Delete(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }
-
 }

@@ -1,89 +1,140 @@
-﻿using BillyService.Models;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using BillyService.Models;
+using Newtonsoft.Json;
+using RestSharp;
+using System;
+using System.Net;
+using System.Collections.Generic;
 
 namespace BillyService
 {
     public class Bills
     {
-        private HttpClient client;
+        private RestClient client;
 
         public Bills(string key)
         {
-            client = new HttpClient();
-            client.BaseAddress = new Uri("https://api.billysbilling.com/v2/");
-            client.DefaultRequestHeaders.Add("X-Access-Token", key);
+            client = new RestClient("https://api.billysbilling.com/v2/");
+            client.AddDefaultHeader("X-Access-Token", key);
         }
 
-        // GET /v2/contacts:id
-        public async Task<GetBillRoot> GetBill(string id)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Bill Get(string id)
         {
             try
             {
-                string url = "bills/" + id;
+                var request = new RestRequest("bills/" + id, Method.GET);
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
+                request.RequestFormat = DataFormat.Json;
 
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var response = client.Get(request);
 
-                var result = JsonConvert.DeserializeObject<GetBillRoot>(responseBody);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
 
-                return result;
+                    return result.bill;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            catch (HttpRequestException e)
+            catch (Exception)
             {
-                throw new HttpRequestException(e.Message);
-            }
-        }
-
-        // GET /v2/bills
-        public async Task<GetBillListRoot> GetBillList()
-        {
-            try
-            {
-                string url = "bills/";
-
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                var result = JsonConvert.DeserializeObject<GetBillListRoot>(responseBody);
-
-                return result;
-            }
-            catch (HttpRequestException e)
-            {
-                throw new HttpRequestException(e.Message);
+                return null;
             }
         }
 
-        public async Task<PostBillResultRoot> PostBill(PostBillRoot bill)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Bill> List()
         {
             try
             {
-                string url = "bills/";
+                var request = new RestRequest("bills/", Method.GET);
 
-                var json = JsonConvert.SerializeObject(bill);
+                request.RequestFormat = DataFormat.Json;
 
-                HttpResponseMessage response = await client.PostAsJsonAsync<PostBillRoot>(url, bill);
-                response.EnsureSuccessStatusCode();
+                var response = client.Get(request);
 
-                var responseBody = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
 
-                var result = JsonConvert.DeserializeObject<PostBillResultRoot>(responseBody);
-
-                return result;
+                    return result.bills;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            catch (HttpRequestException e)
+            catch (Exception)
             {
-                throw new HttpRequestException(e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bill"></param>
+        /// <returns></returns>
+        public string Create(Bill bill)
+        {
+            try
+            {
+                var request = new RestRequest("bills/", Method.POST);
+
+                request.RequestFormat = DataFormat.Json;
+
+                request.AddBody(new
+                {
+                    bill = new
+                    {
+                        organizationId = bill.organizationId,
+                        contactId = bill.contactId,
+                        entryDate = bill.entryDate,
+                        taxMode = bill.taxMode,
+                        state = bill.state,
+                        suppliersInvoiceNo = bill.suppliersInvoiceNo,
+                        voucherNo = bill.voucherNo,
+                        lines = new[]
+                        {
+                            new
+                            {
+                                accountId = bill.lines[0].accountId,
+                                amount = bill.lines[0].amount,
+                                description = bill.lines[0].description,
+                                taxRateId = bill.lines[0].taxRateId
+                            }
+                        }
+                    }
+                });
+
+                var response = client.Post(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
+
+                    return result.bills[0].id;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception)
+            {
+                return null;
             }
         }
     }
