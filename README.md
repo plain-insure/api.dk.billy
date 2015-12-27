@@ -1,6 +1,9 @@
 # Description
 This project provides an integration with the API of Billy (www.billy.dk). It is a C# class library developed by Casper Kønigsfeldt, used in production by Pictu (www.pictu.dk). 
 
+## Build status
+[![Build status](https://ci.appveyor.com/api/projects/status/judlef80gt3t7ltc?svg=true)](https://ci.appveyor.com/project/casperkc/billy)
+
 ## Features
 
 * Bills
