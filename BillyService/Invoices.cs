@@ -1,14 +1,8 @@
-﻿using Billy.Models;
-using BillyService.Models;
-using Newtonsoft.Json;
+﻿using BillyService.Models;
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BillyService
 {
@@ -35,11 +29,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<InvoiceRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<InvoiceRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.invoice;
                 }
@@ -66,11 +60,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<InvoiceRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<InvoiceRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.invoices;
                 }
@@ -98,37 +92,13 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                request.AddBody(new 
-                {
-                    invoice = new
-                    {
-                        invoiceNo = invoice.invoiceNo,
-                        organizationId = invoice.organizationId,
-                        contactId = invoice.contactId,
-                        entryDate = invoice.entryDate,
-                        taxMode = invoice.taxMode,
-                        paymentTermsDays = invoice.paymentTermsDays,
-                        state = invoice.state,
-                        paymentTermsMode = invoice.paymentTermsMode,
-                        sentState = invoice.sentState,
-                        contactMessage = invoice.contactMessage,
-                        lines = new []
-                        {
-                            new
-                            {
-                                unitPrice = invoice.lines[0].unitPrice,
-                                productId = invoice.lines[0].productId,
-                                description = invoice.lines[0].description
-                            }
-                        }
-                    }
-                });
+                request.AddJsonBody(invoice);
 
-                var response = client.Post(request);
+                var response = client.Post<InvoiceRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<InvoiceRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.invoices[0].id;
                 }

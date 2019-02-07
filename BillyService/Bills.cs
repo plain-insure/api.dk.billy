@@ -1,11 +1,8 @@
-using System.Net.Http;
-using System.Threading.Tasks;
 using BillyService.Models;
-using Newtonsoft.Json;
 using RestSharp;
 using System;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
 
 namespace BillyService
 {
@@ -32,11 +29,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<BillRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.bill;
                 }
@@ -63,11 +60,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<BillRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.bills;
                 }
@@ -94,36 +91,13 @@ namespace BillyService
                 var request = new RestRequest("bills/", Method.POST);
 
                 request.RequestFormat = DataFormat.Json;
+                request.AddJsonBody(bill);
 
-                request.AddBody(new
-                {
-                    bill = new
-                    {
-                        organizationId = bill.organizationId,
-                        contactId = bill.contactId,
-                        entryDate = bill.entryDate,
-                        taxMode = bill.taxMode,
-                        state = bill.state,
-                        suppliersInvoiceNo = bill.suppliersInvoiceNo,
-                        voucherNo = bill.voucherNo,
-                        lines = new[]
-                        {
-                            new
-                            {
-                                accountId = bill.lines[0].accountId,
-                                amount = bill.lines[0].amount,
-                                description = bill.lines[0].description,
-                                taxRateId = bill.lines[0].taxRateId
-                            }
-                        }
-                    }
-                });
-
-                var response = client.Post(request);
+                var response = client.Post<BillRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<BillRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.bills[0].id;
                 }

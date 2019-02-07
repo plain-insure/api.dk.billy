@@ -1,14 +1,8 @@
-﻿using Billy.Models;
-using BillyService.Models;
-using Newtonsoft.Json;
+﻿using BillyService.Models;
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BillyService
 {
@@ -31,11 +25,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<ContactRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.contact;
                 }
@@ -60,11 +54,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get(request);
+                var response = client.Get<ContactRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.contacts;
                 }
@@ -87,36 +81,13 @@ namespace BillyService
                 var request = new RestRequest("contacts/", Method.POST);
 
                 request.RequestFormat = DataFormat.Json;
+                request.AddJsonBody(contact);
 
-                request.AddBody(new
-                {
-                    contact = new
-                    {
-                        organizationId = contact.organizationId,
-                        name = contact.name,
-                        countryId = contact.countryId,
-                        street = contact.street,
-                        zipcodeText = contact.zipcodeText,
-                        cityText = contact.cityText,
-                        phone = contact.phone,
-                        isCustomer = contact.isCustomer,
-                        isSupplier = contact.isSupplier,
-                        contactPersons = new[]
-                        {
-                            new
-                            {
-                                name = contact.contactPersons[0].name,
-                                email = contact.contactPersons[0].email
-                            }
-                        }
-                    }
-                });
-
-                var response = client.Post(request);
+                var response = client.Post<ContactRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+                    var result = response.Data;
 
                     return result.contacts[0].id;
                 }
@@ -139,11 +110,11 @@ namespace BillyService
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Delete(request);
+                var response = client.Delete<ContactRoot>(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<ContactRoot>(response.Content);
+                    var result = response.Data;
 
                     return true;
                 }
