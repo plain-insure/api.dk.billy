@@ -12,11 +12,11 @@ namespace BillyService.Repositories
         where T : class, new()
         where TRoot  : class, new()
     {
-        private RestClient client;
-        private Func<TRoot, T> rootToSingle;
-        private Func<TRoot, IList<T>> rootToMultiple;
-        private Func<T, string> itemToId;
-        private string requestUrl;
+        protected RestClient client;
+        protected Func<TRoot, T> rootToSingle;
+        protected Func<TRoot, IList<T>> rootToMultiple;
+        protected Func<T, string> itemToId;
+        protected string requestUrl;
 
         public Base(
             string key, 
@@ -75,7 +75,17 @@ namespace BillyService.Repositories
         public IList<T> List()
         {
 
-            return List(null, null, SortOrder.ASC);
+            return List(null, null, SortOrder.ASC, null, null);
+        }
+
+        public IList<T> List(object filter)
+        {
+            return List(filter, null, SortOrder.ASC, null, null);
+        }
+
+        public IList<T> List(object filter, int page, int pageSize)
+        {
+            return List(filter, null, SortOrder.ASC, page, pageSize);
         }
 
         /// <summary>
@@ -90,16 +100,28 @@ namespace BillyService.Repositories
         /// <returns></returns>
         public IList<T> List(Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
         {
-            return List(null, Utils.PropertyHelper.GetName(sortProperty), SortOrder.ASC);
+            return List(null, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
         }
 
-        public IList<T> List(object filter, string sortProperty, SortOrder sortOrder)
+        public IList<T> List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
+        {
+            return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
+        }
+
+        public IList<T> List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize)
+        {
+            return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, pageSize);
+        }
+
+        public IList<T> List(object filter, string sortProperty, SortOrder sortOrder, int? page, int? pageSize)
         {
             try
             {
                 var request = new RestRequest(requestUrl, Method.GET);
 
-                request.AddSortingAndFilter(filter, sortProperty, sortOrder);
+                request.AddSorting(sortProperty, sortOrder);
+                request.AddFilter(filter);
+                request.AddPaging(page, pageSize);
 
                 request.RequestFormat = DataFormat.Json;
 

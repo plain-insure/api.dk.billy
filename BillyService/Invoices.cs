@@ -1,4 +1,5 @@
 ﻿using BillyService.Models;
+using System.Linq;
 
 namespace BillyService
 {
@@ -13,6 +14,11 @@ namespace BillyService
             )
         { }
 
+        public Invoice MostRecent(string contactId)
+        {
+            var invoices  = List(new { contactId }, i => i.approvedTime, SortOrder.DESC, 1);
+            return invoices.FirstOrDefault();
+        }
 
     }
 }

@@ -10,11 +10,6 @@ namespace BillyService.Utils
     public static class RequestHelper
     {
 
-        public static void AddSortingAndFilter(this RestRequest request, object filter, string sortProperty, SortOrder sortOrder)
-        {
-            AddSorting(request, sortProperty, sortOrder);
-            AddFilter(request, filter);
-        }
         
         public static void AddSorting(this RestRequest request, string sortProperty, SortOrder sortOrder)
         {
@@ -52,6 +47,19 @@ namespace BillyService.Utils
                     }
                 }
             }
+        }
+
+        public static void AddPaging(this RestRequest request, int? page, int? pageSize)
+        {
+            if (pageSize.HasValue)
+            {
+                if (page.HasValue)
+                {
+                    request.AddQueryParameter("page", page.Value.ToString());
+                }
+                request.AddQueryParameter("pageSize", pageSize.Value.ToString());
+            }
+
         }
     }
 }
