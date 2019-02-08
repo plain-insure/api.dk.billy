@@ -13,7 +13,7 @@ namespace BillyService.Utils
         
         public static void AddSorting(this RestRequest request, string sortProperty, SortOrder sortOrder)
         {
-
+            
             if (!string.IsNullOrWhiteSpace(sortProperty))
             {
                 request.AddQueryParameter("sortProperty", sortProperty);

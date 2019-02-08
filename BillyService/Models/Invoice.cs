@@ -12,14 +12,14 @@ namespace BillyService.Models
         public string id { get; set; }
         public string organizationId { get; set; }
         public string type { get; }
-        public string createdTime { get; }
-        public string approvedTime { get; }
+        public DateTime createdTime { get; }
+        public DateTime approvedTime { get; }
         public string contactId { get; set; }
         public object attContactPersonId { get; }
         public string entryDate { get; set; }
         public object paymentTermsMode { get; }
         public object paymentTermsDays { get; set; }
-        public object dueDate { get; }
+        public DateTime dueDate { get; }
         public string state { get; set; }
         public string sentState { get; set; }
         public string invoiceNo { get; set; }
