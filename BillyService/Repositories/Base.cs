@@ -8,9 +8,9 @@ using System.Net;
 
 namespace BillyService.Repositories
 {
-    public abstract class Base<T,TRoot> 
+    public abstract class Base<T, TRoot>
         where T : class, new()
-        where TRoot  : class, new()
+        where TRoot : class, new()
     {
         protected RestClient client;
         protected Func<TRoot, T> rootToSingle;
@@ -18,16 +18,32 @@ namespace BillyService.Repositories
         protected Func<T, string> itemToId;
         protected string requestUrl;
 
+
         public Base(
-            string key, 
-            string requestUrl, 
-            Func<TRoot, T> rootToSingle, 
+            RestClient client,
+            string requestUrl,
+            Func<TRoot, T> rootToSingle,
             Func<TRoot, IList<T>> rootToMultiple,
             Func<T, string> itemToId)
         {
-            //Todo: reuse restclient across repositories
+            this.client = client;
+
+            //Todo: check for correctly formed url
+            this.requestUrl = requestUrl;
+            this.rootToSingle = rootToSingle;
+            this.rootToMultiple = rootToMultiple;
+            this.itemToId = itemToId;
+        }
+
+        public Base(
+            string key,
+            string requestUrl,
+            Func<TRoot, T> rootToSingle,
+            Func<TRoot, IList<T>> rootToMultiple,
+            Func<T, string> itemToId)
+        {
             client = new RestClient("https://api.billysbilling.com/v2/");
-            client.AddDefaultHeader("X-Access-Token", key);
+            client.AddBillyAuthentication(key);
 
             //Todo: check for correctly formed url
             this.requestUrl = requestUrl;
@@ -131,7 +147,7 @@ namespace BillyService.Repositories
                 {
                     var result = response.Data;
 
-                    return rootToMultiple(result)   ;
+                    return rootToMultiple(result);
                 }
                 else
                 {
@@ -164,7 +180,7 @@ namespace BillyService.Repositories
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var result = response.Data;
-                    
+
                     return itemToId(rootToMultiple(result)[0]);
                 }
                 else

@@ -5,6 +5,15 @@ namespace BillyService
 {
     public class Invoices : Repositories.Base<Invoice, InvoiceRoot>
     {
+        public Invoices(RestSharp.RestClient client) : base(
+            client,
+            "invoices/",
+            (root) => root.invoice,
+            (root) => root.invoices,
+            (item) => item.id
+            )
+        { }
+
         public Invoices(string key) : base(
             key,
             "invoices/",

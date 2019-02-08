@@ -9,6 +9,16 @@ namespace BillyService.Repositories
         where T : class, new()
         where TRoot : class, new()
     {
+
+        public BaseWithDelete(
+           RestSharp.RestClient client,
+           string requestUrl,
+           Func<TRoot, T> rootToSingle,
+           Func<TRoot, IList<T>> rootToMultiple,
+           Func<T, string> itemToId) : base(client, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        {
+        }
+
         public BaseWithDelete(
            string key,
            string requestUrl,

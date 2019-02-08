@@ -7,9 +7,8 @@ using System.Text;
 
 namespace BillyService.Utils
 {
-    public static class RequestHelper
+    public static class RequestExtensions
     {
-
         
         public static void AddSorting(this RestRequest request, string sortProperty, SortOrder sortOrder)
         {
