@@ -6,13 +6,13 @@ namespace BillyService.Utils
     {
         public static void AddBillyAuthentication(this RestSharp.RestClient client, string key)
         {
-
             client.AddDefaultHeader("X-Access-Token", key);
         }
 
         public static RestClient CreateBillyClient(string key)
         {
             var client = new RestClient("https://api.billysbilling.com/v2/");
+            client.UseSerializer(new JsonNetSerializer());
             client.AddBillyAuthentication(key);
             return client;
         }

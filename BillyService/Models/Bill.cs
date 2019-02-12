@@ -1,4 +1,5 @@
 ﻿using Billy.Models;
+using System;
 using System.Collections.Generic;
 
 namespace BillyService.Models
@@ -18,14 +19,20 @@ namespace BillyService.Models
         public string id { get; set; }
         public string organizationId { get; set; }
         public string type { get; set; }
-        public string createdTime { get; set; }
-        public string approvedTime { get; set; }
+        public DateTime createdTime { get; set; }
+        public DateTime approvedTime { get; set; }
         public string contactId { get; set; }
         public object contactName { get; set; }
+
+        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
         public string entryDate { get; set; }
-        public object paymentAccountId { get; set; }
-        public object paymentDate { get; set; }
-        public object dueDate { get; set; }
+        public DateTime paymentAccountId { get; set; }
+
+        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
+        public DateTime paymentDate { get; set; }
+
+        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
+        public DateTime dueDate { get; set; }
         public bool isBare { get; set; }
         public string state { get; set; }
         public string suppliersInvoiceNo { get; set; }

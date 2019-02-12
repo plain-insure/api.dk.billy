@@ -11,7 +11,9 @@ namespace Billy.Models
         public string id { get; set; }
         public string organizationId { get; set; }
         public string transactionId { get; set; }
-        public string entryDate { get; set; }
+
+        [Newtonsoft.Json.JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
+        public DateTime entryDate { get; set; }
         public string text { get; set; }
         public string accountId { get; set; }
         public double amount { get; set; }

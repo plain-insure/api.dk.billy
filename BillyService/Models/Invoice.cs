@@ -1,4 +1,5 @@
 ﻿using Billy.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,31 +12,35 @@ namespace BillyService.Models
     {
         public string id { get; set; }
         public string organizationId { get; set; }
-        public string type { get; }
-        public DateTime createdTime { get; }
-        public DateTime approvedTime { get; }
+        public string type { get; set; }
+        public DateTime createdTime { get; set; }
+        public DateTime approvedTime { get; set; }
         public string contactId { get; set; }
-        public object attContactPersonId { get; }
-        public string entryDate { get; set; }
-        public object paymentTermsMode { get; }
+        public object attContactPersonId { get; set; }
+
+        [JsonConverter(typeof (Converters.BillyDateConverter))]
+        public DateTime entryDate { get; set; }
+        public object paymentTermsMode { get; set; }
         public object paymentTermsDays { get; set; }
-        public DateTime dueDate { get; }
+
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
+        public DateTime dueDate { get; set; }
         public string state { get; set; }
         public string sentState { get; set; }
         public string invoiceNo { get; set; }
         public string taxMode { get; set; }
-        public double amount { get; }
-        public double tax { get; }
-        public string currencyId { get; }
-        public int exchangeRate { get; }
-        public int balance { get; }
-        public bool isPaid { get; }
-        public object creditedInvoiceId { get; }
-        public string contactMessage { get; }
-        public string lineDescription { get; }
-        public string bankAccountId { get; }
-        public object recurringInvoiceId { get; }
-        public string downloadUrl { get; }
+        public double amount { get; set; }
+        public double tax { get; set; }
+        public string currencyId { get; set; }
+        public int exchangeRate { get; set; }
+        public int balance { get; set; }
+        public bool isPaid { get; set; }
+        public object creditedInvoiceId { get; set; }
+        public string contactMessage { get; set; }
+        public string lineDescription { get; set; }
+        public string bankAccountId { get; set; }
+        public object recurringInvoiceId { get; set; }
+        public string downloadUrl { get; set; }
         public List<InvoiceLine> lines { get; set; }
     }
 

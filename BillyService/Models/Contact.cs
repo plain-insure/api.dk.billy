@@ -29,7 +29,7 @@ namespace BillyService.Models
         public string id { get; set; }
         public string type { get; set; }
         public string organizationId { get; set; }
-        public string createdTime { get; set; }
+        public DateTime createdTime { get; set; }
         public string name { get; set; }
         public string countryId { get; set; }
         public string street { get; set; }

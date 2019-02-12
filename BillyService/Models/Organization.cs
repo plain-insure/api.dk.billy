@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Billy.Models
 {
@@ -10,7 +6,7 @@ namespace Billy.Models
     {
         public string id { get; set; }
         public string ownerUserId { get; set; }
-        public string createdTime { get; set; }
+        public DateTime createdTime { get; set; }
         public string name { get; set; }
         public string url { get; set; }
         public string street { get; set; }
@@ -46,7 +42,7 @@ namespace Billy.Models
         public string subscriptionExpires { get; set; }
         public bool isTrial { get; set; }
         public bool isTerminated { get; set; }
-        public object terminationTime { get; set; }
+        public DateTime terminationTime { get; set; }
         public string localeId { get; set; }
         public string billEmailAddress { get; set; }
         public bool isUnmigrated { get; set; }
@@ -64,7 +60,9 @@ namespace Billy.Models
         public int paymentTermsDays { get; set; }
         public string defaultSalesAccountId { get; set; }
         public string defaultSalesTaxRulesetId { get; set; }
-        public object bankSyncStartDate { get; set; }
+
+        [Newtonsoft.Json.JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
+        public DateTime bankSyncStartDate { get; set; }
         public string defaultBankFeeAccountId { get; set; }
         public string defaultBillBankAccountId { get; set; }
     }

@@ -42,8 +42,7 @@ namespace BillyService.Repositories
             Func<TRoot, IList<T>> rootToMultiple,
             Func<T, string> itemToId)
         {
-            client = new RestClient("https://api.billysbilling.com/v2/");
-            client.AddBillyAuthentication(key);
+            client = ClientExtensions.CreateBillyClient(key);
 
             //Todo: check for correctly formed url
             this.requestUrl = requestUrl;
