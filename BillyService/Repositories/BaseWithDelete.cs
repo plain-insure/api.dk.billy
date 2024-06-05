@@ -1,7 +1,4 @@
 ﻿using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Net;
 
 namespace BillyService.Repositories
 {
@@ -13,18 +10,18 @@ namespace BillyService.Repositories
         public BaseWithDelete(
            RestSharp.RestClient client,
            string requestUrl,
-           Func<TRoot, T> rootToSingle,
-           Func<TRoot, IList<T>> rootToMultiple,
-           Func<T, string> itemToId) : base(client, requestUrl, rootToSingle, rootToMultiple, itemToId)
+           Func<TRoot?, T?> rootToSingle,
+           Func<TRoot?, IList<T>?> rootToMultiple,
+           Func<T?, string?> itemToId) : base(client, requestUrl, rootToSingle, rootToMultiple, itemToId)
         {
         }
 
         public BaseWithDelete(
            string key,
            string requestUrl,
-           Func<TRoot, T> rootToSingle,
-           Func<TRoot, IList<T>> rootToMultiple,
-           Func<T, string> itemToId) : base(key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+           Func<TRoot?, T?> rootToSingle,
+           Func<TRoot?, IList<T>?> rootToMultiple,
+           Func<T?, string?> itemToId) : base(key, requestUrl, rootToSingle, rootToMultiple, itemToId)
         {
         }
 
@@ -37,19 +34,8 @@ namespace BillyService.Repositories
                     RequestFormat = DataFormat.Json
                 };
 
-
                 var response = client.Delete<TRoot>(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = response.Data;
-
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             catch (Exception)
             {

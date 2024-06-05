@@ -13,18 +13,18 @@ namespace BillyService.Repositories
         where TRoot : class, new()
     {
         protected RestClient client;
-        protected Func<TRoot, T> rootToSingle;
-        protected Func<TRoot, IList<T>> rootToMultiple;
-        protected Func<T, string> itemToId;
+        protected Func<TRoot?, T?> rootToSingle;
+        protected Func<TRoot?, IList<T>?> rootToMultiple;
+        protected Func<T?, string?> itemToId;
         protected string requestUrl;
 
 
         public Base(
             RestClient client,
             string requestUrl,
-            Func<TRoot, T> rootToSingle,
-            Func<TRoot, IList<T>> rootToMultiple,
-            Func<T, string> itemToId)
+            Func<TRoot?, T?> rootToSingle,
+            Func<TRoot?, IList<T>?> rootToMultiple,
+            Func<T?, string?> itemToId)
         {
             this.client = client;
 
@@ -38,9 +38,9 @@ namespace BillyService.Repositories
         public Base(
             string key,
             string requestUrl,
-            Func<TRoot, T> rootToSingle,
-            Func<TRoot, IList<T>> rootToMultiple,
-            Func<T, string> itemToId)
+            Func<TRoot?, T?> rootToSingle,
+            Func<TRoot?, IList<T>?> rootToMultiple,
+            Func<T?, string?> itemToId)
         {
             client = ClientExtensions.CreateBillyClient(key);
 
@@ -56,26 +56,17 @@ namespace BillyService.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public T Get(string id)
+        public T? Get(string id)
         {
             try
             {
-                var request = new RestRequest(requestUrl + id, Method.GET);
-
-                request.RequestFormat = DataFormat.Json;
-
-                var response = client.Get<TRoot>(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
+                var request = new RestRequest(requestUrl + id, Method.Get)
                 {
-                    var result = response.Data;
+                    RequestFormat = DataFormat.Json
+                };
 
-                    return rootToSingle(result);
-                }
-                else
-                {
-                    return null;
-                }
+                return rootToSingle(client.Get<TRoot>(request) ?? throw new NullReferenceException() );
+
             }
             catch (Exception)
             {
@@ -87,18 +78,18 @@ namespace BillyService.Repositories
         /// 
         /// </summary>
         /// <returns></returns>
-        public IList<T> List()
+        public IList<T>? List()
         {
 
             return List(null, null, SortOrder.ASC, null, null);
         }
 
-        public IList<T> List(object filter)
+        public IList<T>? List(object filter)
         {
             return List(filter, null, SortOrder.ASC, null, null);
         }
 
-        public IList<T> List(object filter, int page, int pageSize)
+        public IList<T>? List(object filter, int page, int pageSize)
         {
             return List(filter, null, SortOrder.ASC, page, pageSize);
         }
@@ -113,45 +104,36 @@ namespace BillyService.Repositories
         /// <param name="sortProperty">The sort property.</param>
         /// <param name="sortOrder">The sort order.</param>
         /// <returns></returns>
-        public IList<T> List(Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
+        public IList<T>? List(Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
         {
             return List(null, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
         }
 
-        public IList<T> List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
+        public IList<T>? List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
         {
             return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
         }
 
-        public IList<T> List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize)
+        public IList<T>? List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize)
         {
             return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, pageSize);
         }
 
-        public IList<T> List(object filter, string sortProperty, SortOrder sortOrder, int? page, int? pageSize)
+        public IList<T>? List(object? filter, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize)
         {
             try
             {
-                var request = new RestRequest(requestUrl, Method.GET);
-
-                request.AddSorting(sortProperty, sortOrder);
-                request.AddFilter(filter);
-                request.AddPaging(page, pageSize);
+                var request = new RestRequest(requestUrl, Method.Get);
+                if (sortProperty != null)
+                    request.AddSorting(sortProperty, sortOrder);
+                if (filter != null)
+                    request.AddFilter(filter);
+                if (page != null && pageSize != null)
+                    request.AddPaging(page, pageSize);
 
                 request.RequestFormat = DataFormat.Json;
 
-                var response = client.Get<TRoot>(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = response.Data;
-
-                    return rootToMultiple(result);
-                }
-                else
-                {
-                    return null;
-                }
+                return rootToMultiple(client.Get<TRoot>(request));
             }
             catch (Exception)
             {
@@ -164,28 +146,19 @@ namespace BillyService.Repositories
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public string Create(T item)
+        public string? Create(T item)
         {
             try
             {
-                var request = new RestRequest(requestUrl, Method.POST);
-
-                request.RequestFormat = DataFormat.Json;
+                var request = new RestRequest(requestUrl, Method.Post)
+                {
+                    RequestFormat = DataFormat.Json
+                };
 
                 request.AddJsonBody(item);
 
-                var response = client.Post<TRoot>(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var result = response.Data;
-
-                    return itemToId(rootToMultiple(result)[0]);
-                }
-                else
-                {
-                    return null;
-                }
+                var result = client.Post<TRoot>(request);
+                return itemToId(rootToMultiple(result)?[0]);
             }
             catch (Exception)
             {

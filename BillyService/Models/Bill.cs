@@ -1,6 +1,7 @@
 ﻿using Billy.Models;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BillyService.Models
 {
@@ -24,14 +25,15 @@ namespace BillyService.Models
         public string contactId { get; set; }
         public object contactName { get; set; }
 
-        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
-        public string entryDate { get; set; }
-        public DateTime paymentAccountId { get; set; }
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
+        public DateTime entryDate { get; set; }
 
-        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
+        public string paymentAccountId { get; set; }
+
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
         public DateTime paymentDate { get; set; }
 
-        [Newtonsoft.Json.JsonConverter(typeof(Converters.BillyDateConverter))]
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
         public DateTime dueDate { get; set; }
         public bool isBare { get; set; }
         public string state { get; set; }

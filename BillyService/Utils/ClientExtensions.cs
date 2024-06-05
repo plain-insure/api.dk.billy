@@ -12,7 +12,6 @@ namespace BillyService.Utils
         public static RestClient CreateBillyClient(string key)
         {
             var client = new RestClient("https://api.billysbilling.com/v2/");
-            client.UseSerializer(new JsonNetSerializer());
             client.AddBillyAuthentication(key);
             return client;
         }

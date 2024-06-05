@@ -1,5 +1,6 @@
 ﻿
 
+using Billy.Models;
 using BillyService.Models;
 
 namespace BillyService.Tests
@@ -17,7 +18,7 @@ namespace BillyService.Tests
             {
                 organizationId = "",
                 contactId = "",
-                entryDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                entryDate = DateTime.Now,
                 paymentTermsDays = 0,
                 state = "approved",
                 sentState = "unsent",
@@ -58,7 +59,7 @@ namespace BillyService.Tests
             {
                 organizationId = "",
                 contactId = "",
-                entryDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                entryDate = DateTime.Now,
                 paymentTermsDays = 0,
                 state = "approved",
                 sentState = "unsent",

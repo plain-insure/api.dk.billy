@@ -19,7 +19,7 @@ namespace BillyService.Tests
             {
                 organizationId = "",
                 contactId = "",
-                entryDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                entryDate = DateTime.Now,
                 state = "approved",
                 taxMode = "incl",
                 suppliersInvoiceNo = "",
@@ -60,7 +60,7 @@ namespace BillyService.Tests
             {
                 organizationId = "",
                 contactId = "",
-                entryDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                entryDate = DateTime.Now,
                 state = "approved",
                 taxMode = "incl",
                 suppliersInvoiceNo = "",

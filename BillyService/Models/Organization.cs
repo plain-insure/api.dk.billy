@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Billy.Models
 {
@@ -61,7 +62,7 @@ namespace Billy.Models
         public string defaultSalesAccountId { get; set; }
         public string defaultSalesTaxRulesetId { get; set; }
 
-        [Newtonsoft.Json.JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
+        [JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
         public DateTime bankSyncStartDate { get; set; }
         public string defaultBankFeeAccountId { get; set; }
         public string defaultBillBankAccountId { get; set; }
