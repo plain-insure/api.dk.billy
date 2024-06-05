@@ -1,24 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Billy</RootNamespace>
-    <AssemblyName>BillyService</AssemblyName>
-    <Version>1.1</Version>
-    <Authors>Pictu IVS</Authors>
-    <Company />
-    <Description>Api wrapper for Billy written in C#.</Description>
-    <PackageLicenseUrl>https://github.com/casperkc/billy/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/casperkc/billy</PackageProjectUrl>
-    <PackageTags></PackageTags>
-    <Copyright>Copyright © 2015</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="RestSharp" Version="106.6.7" />
+    <PackageReference Include="RestSharp" Version="111.2.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+
 </Project>

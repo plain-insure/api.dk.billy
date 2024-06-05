@@ -32,9 +32,11 @@ namespace BillyService.Repositories
         {
             try
             {
-                var request = new RestRequest(requestUrl + id, Method.DELETE);
+                var request = new RestRequest(requestUrl + id, Method.Delete)
+                {
+                    RequestFormat = DataFormat.Json
+                };
 
-                request.RequestFormat = DataFormat.Json;
 
                 var response = client.Delete<TRoot>(request);
 

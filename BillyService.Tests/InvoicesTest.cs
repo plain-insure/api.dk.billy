@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿
+
 using BillyService.Models;
-using System.Collections.Generic;
-using Billy.Models;
 
 namespace BillyService.Tests
 {
