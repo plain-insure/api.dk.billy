@@ -2,18 +2,18 @@
 {
     public class InvoiceLine
     {
-        public string id { get; set; }
-        public string invoiceId { get; set; }
-        public string productId { get; set; }
-        public string description { get; set; }
-        public int quantity { get; set; }
-        public int unitPrice { get; set; }
-        public int amount { get; set; }
-        public double tax { get; set; }
-        public string taxRateId { get; set; }
-        public object discountText { get; set; }
-        public object discountMode { get; set; }
-        public object discountValue { get; set; }
-        public int priority { get; set; }
+        public string Id { get; set; }
+        public string InvoiceId { get; set; }
+        public string ProductId { get; set; }
+        public string Description { get; set; }
+        public int Quantity { get; set; }
+        public int UnitPrice { get; set; }
+        public int Amount { get; set; }
+        public double Tax { get; set; }
+        public string TaxRateId { get; set; }
+        public object DiscountText { get; set; }
+        public object DiscountMode { get; set; }
+        public object DiscountValue { get; set; }
+        public int Priority { get; set; }
     }
 }

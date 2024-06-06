@@ -8,7 +8,7 @@ namespace BillyService.Tests
     [TestClass]
     public class InvoicesTest
     {
-        private Invoices service = new Invoices("");
+        private Invoices service = new Invoices(Environment.GetEnvironmentVariable("BILLY_TEST_APIKEY"));
 
         [TestMethod]
         public void Get()
@@ -16,21 +16,21 @@ namespace BillyService.Tests
             // Arrange
             var id = service.Create(new Invoice
             {
-                organizationId = "",
-                contactId = "",
-                entryDate = DateTime.Now,
-                paymentTermsDays = 0,
-                state = "approved",
-                sentState = "unsent",
-                taxMode = "incl",
-                invoiceNo = "",
-                lines = new List<InvoiceLine>
+                OrganizationId = "",
+                ContactId = "",
+                EntryDate = DateTime.Now,
+                PaymentTermsDays = 0,
+                State = "approved",
+                SentState = "unsent",
+                TaxMode = "incl",
+                InvoiceNo = "",
+                Lines = new List<InvoiceLine>
                 {
                     new InvoiceLine
                     {
-                        unitPrice = 0,
-                        productId = "",
-                        description = ""
+                        UnitPrice = 0,
+                        ProductId = "",
+                        Description = ""
                     }
                 }
             });
@@ -57,21 +57,21 @@ namespace BillyService.Tests
         {
             var result = service.Create(new Invoice
             {
-                organizationId = "",
-                contactId = "",
-                entryDate = DateTime.Now,
-                paymentTermsDays = 0,
-                state = "approved",
-                sentState = "unsent",
-                taxMode = "incl",
-                invoiceNo = "",
-                lines = new List<InvoiceLine>
+                OrganizationId = "",
+                ContactId = "",
+                EntryDate = DateTime.Now,
+                PaymentTermsDays = 0,
+                State = "approved",
+                SentState = "unsent",
+                TaxMode = "incl",
+                InvoiceNo = "",
+                Lines = new List<InvoiceLine>
                 {
                     new InvoiceLine
                     {
-                        unitPrice = 0,
-                        productId = "",
-                        description = ""
+                        UnitPrice = 0,
+                        ProductId = "",
+                        Description = ""
                     }
                 }
             });

@@ -9,28 +9,28 @@ namespace BillyService.Tests
     [TestClass]
     public class ContactsTest
     {
-        private Contacts service = new Contacts("API_KEY");
+        private Contacts service = new Contacts(Environment.GetEnvironmentVariable("BILLY_TEST_APIKEY"));
 
         [TestMethod]
         public void Get()
         {
             var create = service.Create(new Contact
             {
-                organizationId = "",
-                name = "",
-                countryId = Countries.DK.ToString(),
-                street = "",
-                zipcodeText = "",
-                cityText = "",
-                phone = "",
-                isCustomer = true,
-                isSupplier = false,
-                contactPersons = new List<ContactPerson>
+                OrganizationId = "",
+                Name = "",
+                CountryId = Countries.DK.ToString(),
+                Street = "",
+                ZipcodeText = "",
+                CityText = "",
+                Phone = "",
+                IsCustomer = true,
+                IsSupplier = false,
+                ContactPersons = new List<ContactPerson>
                 {
                     new ContactPerson
                     {
-                        email = "",
-                        name = ""
+                        Email = "",
+                        Name = ""
                     }
                 }
             });
@@ -41,7 +41,7 @@ namespace BillyService.Tests
             var deleteResult = service.Delete(create);
 
             // Assert
-            Assert.AreEqual(create, result.id);
+            Assert.AreEqual(create, result.Id);
         }
 
         [TestMethod]
@@ -60,21 +60,21 @@ namespace BillyService.Tests
             // Act
             var result = service.Create(new Contact
             {
-                organizationId = "",
-                name = "",
-                countryId = Countries.DK.ToString(),
-                street = "",
-                zipcodeText = "",
-                cityText = "",
-                phone = "",
-                isCustomer = true,
-                isSupplier = false,
-                contactPersons = new List<ContactPerson>
+                OrganizationId = "",
+                Name = "",
+                CountryId = Countries.DK.ToString(),
+                Street = "",
+                ZipcodeText = "",
+                CityText = "",
+                Phone = "",
+                IsCustomer = true,
+                IsSupplier = false,
+                ContactPersons = new List<ContactPerson>
                 {
                     new ContactPerson
                     {
-                        email = "",
-                        name = ""
+                        Email = "",
+                        Name = ""
                     }
                 }
             });
@@ -91,21 +91,21 @@ namespace BillyService.Tests
             // Arrange
             var create = service.Create(new Contact
             {
-                organizationId = "",
-                name = "",
-                countryId = Countries.DK.ToString(),
-                street = "",
-                zipcodeText = "",
-                cityText = "",
-                phone = "",
-                isCustomer = true,
-                isSupplier = false,
-                contactPersons = new List<ContactPerson>
+                OrganizationId = "",
+                Name = "",
+                CountryId = Countries.DK.ToString(),
+                Street = "",
+                ZipcodeText = "",
+                CityText = "",
+                Phone = "",
+                IsCustomer = true,
+                IsSupplier = false,
+                ContactPersons = new List<ContactPerson>
                 {
                     new ContactPerson
                     {
-                        email = "",
-                        name = ""
+                        Email = "",
+                        Name = ""
                     }
                 }
             });

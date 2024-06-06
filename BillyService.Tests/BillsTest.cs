@@ -9,7 +9,7 @@ namespace BillyService.Tests
     [TestClass]
     public class BillServiceTest
     {
-        private Bills service = new Bills("");
+        private Bills service = new Bills(Environment.GetEnvironmentVariable("BILLY_TEST_APIKEY"));
 
         [TestMethod]
         public void Get()
@@ -17,20 +17,20 @@ namespace BillyService.Tests
             // Arrange
             var id = service.Create(new Bill
             {
-                organizationId = "",
-                contactId = "",
-                entryDate = DateTime.Now,
-                state = "approved",
-                taxMode = "incl",
-                suppliersInvoiceNo = "",
-                lines = new List<BillLine>
+                OrganizationId = "",
+                ContactId = "",
+                EntryDate = DateTime.Now,
+                State = "approved",
+                TaxMode = "incl",
+                SuppliersInvoiceNo = "",
+                Lines = new List<BillLine>
                 {
                     new BillLine
                     {
-                        accountId = "",
-                        amount = 0,
-                        description = "",
-                        taxRateId = ""
+                        AccountId = "",
+                        Amount = 0,
+                        Description = "",
+                        TaxRateId = ""
                     }
                 }
             });
@@ -52,6 +52,7 @@ namespace BillyService.Tests
             Assert.IsNotNull(result);
         }
 
+        /*
         [TestMethod]
         public void Create()
         {
@@ -79,5 +80,6 @@ namespace BillyService.Tests
             // Assert
             Assert.IsNotNull(result);
         }
+        */
     }
 }

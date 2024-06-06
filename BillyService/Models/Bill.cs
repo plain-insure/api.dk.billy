@@ -7,61 +7,61 @@ namespace BillyService.Models
 {
     public class BillRoot
     {
-        public Meta meta { get; set; }
-        public Bill bill { get; set; }
-        public List<Bill> bills { get; set; }
-        public List<BillLine> billLines { get; set; }
-        public List<Transaction> transactions { get; set; }
-        public List<Posting> postings { get; set; }
+        public Meta Meta { get; set; }
+        public Bill Bill { get; set; }
+        public List<Bill> Bills { get; set; }
+        public List<BillLine> BillLines { get; set; }
+        public List<Transaction> Transactions { get; set; }
+        public List<Posting> Postings { get; set; }
     }
 
     public class Bill
     {
-        public string id { get; set; }
-        public string organizationId { get; set; }
-        public string type { get; set; }
-        public DateTime createdTime { get; set; }
-        public DateTime approvedTime { get; set; }
-        public string contactId { get; set; }
-        public object contactName { get; set; }
+        public string Id { get; set; }
+        public string OrganizationId { get; set; }
+        public string Type { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime ApprovedTime { get; set; }
+        public string ContactId { get; set; }
+        public object ContactName { get; set; }
 
         [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime entryDate { get; set; }
+        public DateTime EntryDate { get; set; }
 
-        public string paymentAccountId { get; set; }
-
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime paymentDate { get; set; }
+        public string PaymentAccountId { get; set; }
 
         [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime dueDate { get; set; }
-        public bool isBare { get; set; }
-        public string state { get; set; }
-        public string suppliersInvoiceNo { get; set; }
-        public string taxMode { get; set; }
-        public string voucherNo { get; set; }
-        public double amount { get; set; }
-        public double tax { get; set; }
-        public string currencyId { get; set; }
-        public int exchangeRate { get; set; }
-        public int balance { get; set; }
-        public bool isPaid { get; set; }
-        public string lineDescription { get; set; }
-        public object creditedBillId { get; set; }
-        public object source { get; set; }
-        public object subject { get; set; }
-        public List<BillLine> lines { get; set; }
+        public DateTime PaymentDate { get; set; }
+
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
+        public DateTime DueDate { get; set; }
+        public bool IsBare { get; set; }
+        public string State { get; set; }
+        public string SuppliersInvoiceNo { get; set; }
+        public string TaxMode { get; set; }
+        public string VoucherNo { get; set; }
+        public double Amount { get; set; }
+        public double Tax { get; set; }
+        public string CurrencyId { get; set; }
+        public int ExchangeRate { get; set; }
+        public int Balance { get; set; }
+        public bool IsPaid { get; set; }
+        public string LineDescription { get; set; }
+        public object CreditedBillId { get; set; }
+        public object Source { get; set; }
+        public object Subject { get; set; }
+        public List<BillLine> Lines { get; set; }
     }
 
     public class BillLine
     {
-        public string id { get; set; }
-        public string billId { get; set; }
-        public string accountId { get; set; }
-        public string taxRateId { get; set; }
-        public string description { get; set; }
-        public int amount { get; set; }
-        public double tax { get; set; }
-        public int priority { get; set; }
+        public string Id { get; set; }
+        public string BillId { get; set; }
+        public string AccountId { get; set; }
+        public string TaxRateId { get; set; }
+        public string Description { get; set; }
+        public int Amount { get; set; }
+        public double Tax { get; set; }
+        public int Priority { get; set; }
     }
 }

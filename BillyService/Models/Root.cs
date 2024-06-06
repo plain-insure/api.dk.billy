@@ -10,6 +10,6 @@ namespace Billy.Models
 
     public class Root
     {
-        public object contact { get; set; }
+        public object Contact { get; set; }
     }
 }

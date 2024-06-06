@@ -9,8 +9,8 @@ namespace Billy.Models
 {
     public class RootObject
     {
-        public Meta meta { get; set; }
-        public List<Contact> contacts { get; set; }
-        public Contact contact { get; set; }
+        public Meta Meta { get; set; }
+        public List<Contact> Contacts { get; set; }
+        public Contact Contact { get; set; }
     }
 }

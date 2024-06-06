@@ -7,17 +7,17 @@ namespace BillyService
         public Bills(RestSharp.RestClient client) : base(
             client,
             "bills/",
-            (root) => root?.bill,
-            (root) => root?.bills,
-            (item) => item?.id
+            (root) => root?.Bill,
+            (root) => root?.Bills,
+            (item) => item?.Id
             )
         { }
         public Bills(string key) : base(
             key,
             "bills/",
-            (root) => root?.bill,
-            (root) => root?.bills,
-            (item) => item?.id
+            (root) => root?.Bill,
+            (root) => root?.Bills,
+            (item) => item?.Id
             )
         { }
 

@@ -7,18 +7,18 @@ namespace BillyService
         public Contacts(RestSharp.RestClient client) : base(
             client,
             "contacts/",
-            (root) => root.contact,
-            (root) => root.contacts,
-            (item) => item.id
+            (root) => root.Contact,
+            (root) => root.Contacts,
+            (item) => item.Id
             )
         { }
 
         public Contacts(string key) : base(
             key,
             "contacts/",
-            (root) => root.contact,
-            (root) => root.contacts,
-            (item) => item.id
+            (root) => root.Contact,
+            (root) => root.Contacts,
+            (item) => item.Id
             )
         { }
 
