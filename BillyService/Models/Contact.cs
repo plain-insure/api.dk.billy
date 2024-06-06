@@ -2,6 +2,14 @@
 
 namespace BillyService.Models
 {
+
+    public class ContactRoot
+    {
+        public Meta Meta { get; set; }
+        public Contact Contact { get; set; }
+        public List<Contact> Contacts { get; set; }
+    }
+
     public class PostContact
     {
         public string Type { get; set; }
@@ -52,10 +60,4 @@ namespace BillyService.Models
         public List<ContactPerson> ContactPersons { get; set; }
     }
 
-    public class ContactRoot
-    {
-        public Meta Meta { get; set; }
-        public Contact Contact { get; set; }
-        public List<Contact> Contacts { get; set; }
-    }
 }

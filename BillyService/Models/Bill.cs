@@ -36,7 +36,7 @@ namespace BillyService.Models
         [JsonConverter(typeof(Converters.BillyDateConverter))]
         public DateTime DueDate { get; set; }
         public bool IsBare { get; set; }
-        public string State { get; set; }
+        public BillStates State { get; set; }
         public string SuppliersInvoiceNo { get; set; }
         public string TaxMode { get; set; }
         public string VoucherNo { get; set; }
