@@ -2,6 +2,9 @@
 
 namespace Billy.Api.Models
 {
+    /// <summary>
+    /// The root of the object that is returned when a bill is created, updated, or retrieved.
+    /// </summary>
     public class BillRoot
     {
         public Meta Meta { get; set; }
@@ -12,6 +15,9 @@ namespace Billy.Api.Models
         public List<Posting> Postings { get; set; }
     }
 
+    /// <summary>
+    /// Simplified model of a Bill object.
+    /// </summary>
     public class Bill
     {
         public string Id { get; set; }

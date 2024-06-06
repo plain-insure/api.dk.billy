@@ -14,9 +14,19 @@
     <PackageReleaseNotes>Refactored fork of Billy Service to .Net 8 and cleaning.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+	  <!-- If all members are not documented, you can disable the compiler warnings -->
+	  <NoWarn>$(NoWarn);CS1591</NoWarn>
+	  <Authors>Plain, Peter</Authors>
+	  <PackageIcon>billy.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\billy.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
