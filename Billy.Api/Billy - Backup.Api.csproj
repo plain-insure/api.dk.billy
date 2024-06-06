@@ -7,13 +7,16 @@
     <Title>Billy Service</Title>
     <Company>Plain</Company>
     <Description>A C# implementation of the Billy API</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/plain-insure/api.dk.billy</PackageProjectUrl>
     <RepositoryUrl>https://github.com/plain-insure/api.dk.billy</RepositoryUrl>
     <PackageTags>billy, api, accounting</PackageTags>
     <PackageReleaseNotes>Refactored fork of Billy Service to .Net 8 and cleaning.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+    <!-- When everything is documented, remove this -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="RestSharp" Version="111.2.0" />
   </ItemGroup>
 

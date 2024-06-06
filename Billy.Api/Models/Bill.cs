@@ -1,9 +1,6 @@
-﻿using Billy.Models;
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace BillyService.Models
+namespace Billy.Api.Models
 {
     public class BillRoot
     {

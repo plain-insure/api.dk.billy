@@ -1,10 +1,10 @@
-﻿using BillyService.Models;
-using BillyService.Utils;
+﻿using Billy.Api.Models;
+using Billy.Api.Utils;
 using RestSharp;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
-namespace BillyService.Repositories
+namespace Billy.Api.Repositories
 {
     public abstract class Base<T, TRoot>
         where T : class, new()

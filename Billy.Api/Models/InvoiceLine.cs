@@ -1,4 +1,4 @@
-﻿namespace Billy.Models
+﻿namespace Billy.Api.Models
 {
     public class InvoiceLine
     {

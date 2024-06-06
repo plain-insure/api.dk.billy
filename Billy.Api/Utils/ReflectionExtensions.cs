@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BillyService.Utils
+namespace Billy.Api.Utils
 {
     internal static class ReflectionExtensions
     {

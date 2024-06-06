@@ -1,7 +1,6 @@
-﻿using Billy.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace BillyService.Models
+namespace Billy.Api.Models
 {
     public class Invoice
     {

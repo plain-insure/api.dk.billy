@@ -1,6 +1,6 @@
 ﻿using RestSharp;
 
-namespace BillyService.Utils
+namespace Billy.Api.Utils
 {
     public static class ClientExtensions
     {

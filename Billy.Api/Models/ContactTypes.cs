@@ -1,4 +1,4 @@
-﻿namespace BillyService.Models
+﻿namespace Billy.Api.Models
 {
     public enum ContactTypes
     {

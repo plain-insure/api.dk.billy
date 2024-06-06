@@ -1,8 +1,8 @@
 ﻿
-using BillyService.Models;
+using Billy.Api.Models;
 using RestSharp;
 
-namespace BillyService.Utils
+namespace Billy.Api.Utils
 {
     public static class RequestExtensions
     {

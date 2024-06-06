@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BillyService.Converters
+namespace Billy.Api.Converters
 {
     public class BillyDateConverter : JsonConverter<DateTime>
     {

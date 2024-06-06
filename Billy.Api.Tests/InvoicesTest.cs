@@ -1,9 +1,9 @@
 ﻿
 
-using Billy.Models;
-using BillyService.Models;
+using Billy.Api.Models;
+using Billy.Api.Models;
 
-namespace BillyService.Tests
+namespace Billy.Api.Tests
 {
     [TestClass]
     public class InvoicesTest

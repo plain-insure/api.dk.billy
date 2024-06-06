@@ -1,7 +1,7 @@
-﻿using BillyService.Models;
+﻿using Billy.Api.Models;
 using System.Linq;
 
-namespace BillyService
+namespace Billy.Api
 {
     public class Invoices : Repositories.Base<Invoice, InvoiceRoot>
     {

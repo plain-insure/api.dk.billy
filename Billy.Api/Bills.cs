@@ -1,6 +1,6 @@
-using BillyService.Models;
+using Billy.Api.Models;
 
-namespace BillyService
+namespace Billy.Api
 {
     public class Bills : Repositories.Base<Bill, BillRoot>
     {

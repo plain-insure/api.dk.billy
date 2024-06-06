@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Billy.Models
+namespace Billy.Api.Models
 {
     public class Transaction
     {
@@ -10,7 +10,7 @@ namespace Billy.Models
         public string VoucherNo { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        [JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
         public DateTime EntryDate { get; set; }
         public string OriginatorReference { get; set; }
         public string OriginatorName { get; set; }

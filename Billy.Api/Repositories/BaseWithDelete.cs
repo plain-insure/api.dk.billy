@@ -1,6 +1,6 @@
 ﻿using RestSharp;
 
-namespace BillyService.Repositories
+namespace Billy.Api.Repositories
 {
     public abstract class BaseWithDelete<T, TRoot> : Base<T, TRoot>
         where T : class, new()

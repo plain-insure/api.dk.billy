@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BillyService.Models;
+using Billy.Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BillyService.Tests
+namespace Billy.Api.Tests
 {
     [TestClass]
     public class ContactsTest

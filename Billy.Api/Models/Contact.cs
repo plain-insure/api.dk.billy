@@ -1,6 +1,4 @@
-﻿using Billy.Models;
-
-namespace BillyService.Models
+﻿namespace Billy.Api.Models
 {
 
     public class ContactRoot

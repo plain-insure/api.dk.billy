@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Billy.Models
+namespace Billy.Api.Models
 {
     public class Posting
     {
@@ -8,7 +8,7 @@ namespace Billy.Models
         public string OrganizationId { get; set; }
         public string TransactionId { get; set; }
 
-        [JsonConverter(typeof(BillyService.Converters.BillyDateConverter))]
+        [JsonConverter(typeof(Converters.BillyDateConverter))]
         public DateTime EntryDate { get; set; }
         public string Text { get; set; }
         public string AccountId { get; set; }
