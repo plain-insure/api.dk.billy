@@ -1,18 +1,15 @@
 ﻿
 using BillyService.Models;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BillyService.Utils
 {
     public static class RequestExtensions
     {
-        
+
         public static void AddSorting(this RestRequest request, string sortProperty, SortOrder sortOrder)
         {
-            
+
             if (!string.IsNullOrWhiteSpace(sortProperty))
             {
                 request.AddQueryParameter("sortProperty", sortProperty);
@@ -22,10 +19,9 @@ namespace BillyService.Utils
 
         public static void AddFilter(this RestRequest request, object filter)
         {
-
             if (filter != null)
             {
-                var filterValues = TypeHelper.ObjectToDictionary(filter);
+                var filterValues = filter.AsDictionary();
                 foreach (var f in filterValues)
                 {
                     // we need to check string explicitly because it also is a IEnumerable
@@ -42,7 +38,7 @@ namespace BillyService.Utils
                     }
                     else
                     {
-                        request.AddQueryParameter(f.Key, f.Value.ToString());
+                        request.AddQueryParameter(f.Key, f.Value?.ToString());
                     }
                 }
             }

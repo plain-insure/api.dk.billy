@@ -20,7 +20,7 @@ namespace BillyService.Tests
                 OrganizationId = "",
                 ContactId = "",
                 EntryDate = DateTime.Now,
-                State = "approved",
+                State = BillStates.draft,
                 TaxMode = "incl",
                 SuppliersInvoiceNo = "",
                 Lines = new List<BillLine>

@@ -3,6 +3,7 @@ using BillyService.Utils;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Net;
 
@@ -65,8 +66,15 @@ namespace BillyService.Repositories
                     RequestFormat = DataFormat.Json
                 };
 
-                return rootToSingle(client.Get<TRoot>(request) ?? throw new NullReferenceException() );
+                var response = client.Execute<TRoot>(request);
 
+                if (!response.IsSuccessful)
+                    return null;
+
+                Debug.WriteLine(response.StatusCode);
+                Debug.WriteLine(response.Content);
+
+                return rootToSingle(response.Data);
             }
             catch (Exception)
             {
