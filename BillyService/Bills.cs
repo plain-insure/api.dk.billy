@@ -12,6 +12,7 @@ namespace BillyService
             (item) => item?.Id
             )
         { }
+
         public Bills(string key) : base(
             key,
             "bills/",

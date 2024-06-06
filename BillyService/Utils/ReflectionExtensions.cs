@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace BillyService.Utils
 {
@@ -13,6 +14,17 @@ namespace BillyService.Utils
                 propInfo => propInfo.GetValue(source, null)
             );
 
+        }
+
+        public static string GetName<T>(this Expression<Func<T, object>> exp)
+        {
+            if (exp.Body is not MemberExpression body)
+            {
+                UnaryExpression ubody = (UnaryExpression)exp.Body;
+                body = ubody.Operand as MemberExpression ?? throw new NullReferenceException("Invalid expression");
+            }
+
+            return body.Member.Name;
         }
     }
 }

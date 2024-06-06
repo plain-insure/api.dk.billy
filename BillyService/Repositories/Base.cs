@@ -1,11 +1,8 @@
 ﻿using BillyService.Models;
 using BillyService.Utils;
 using RestSharp;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Net;
 
 namespace BillyService.Repositories
 {
@@ -114,17 +111,17 @@ namespace BillyService.Repositories
         /// <returns></returns>
         public IList<T>? List(Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
         {
-            return List(null, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
+            return List(null, sortProperty.GetName(), sortOrder, null, null);
         }
 
         public IList<T>? List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder)
         {
-            return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, null);
+            return List(filter, sortProperty.GetName(), sortOrder, null, null);
         }
 
         public IList<T>? List(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize)
         {
-            return List(filter, Utils.PropertyHelper.GetName(sortProperty), sortOrder, null, pageSize);
+            return List(filter, sortProperty.GetName(), sortOrder, null, pageSize);
         }
 
         public IList<T>? List(object? filter, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize)
