@@ -2,7 +2,17 @@
 
 namespace Billy.Api.Models
 {
-    public class Invoice
+    public class InvoiceRoot
+    {
+        public Meta Meta { get; set; }
+        public Invoice Invoice { get; set; }
+        public List<Invoice> Invoices { get; set; }
+        public List<InvoiceLine> InvoiceLines { get; set; }
+        public List<Organization> Organizations { get; set; }
+        public List<Transaction> Transactions { get; set; }
+        public List<Posting> Postings { get; set; }
+    }
+    public class Invoice : IEntity
     {
         public string Id { get; set; }
         public string OrganizationId { get; set; }
@@ -38,14 +48,4 @@ namespace Billy.Api.Models
         public List<InvoiceLine> Lines { get; set; }
     }
 
-    public class InvoiceRoot
-    {
-        public Meta Meta { get; set; }
-        public Invoice Invoice { get; set; }
-        public List<Invoice> Invoices { get; set; }
-        public List<InvoiceLine> InvoiceLines { get; set; }
-        public List<Organization> Organizations { get; set; }
-        public List<Transaction> Transactions { get; set; }
-        public List<Posting> Postings { get; set; }
-    }
 }

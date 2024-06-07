@@ -114,7 +114,7 @@ namespace Billy.Api.Tests
             var result = service.Delete(create);
 
             // Assert
-            Assert.IsTrue(result);
+            Assert.IsNotNull(result);
         }
     }
 }

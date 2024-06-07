@@ -3,44 +3,38 @@
 namespace Billy.Api.Repositories
 {
     public abstract class BaseWithDelete<T, TRoot> : Base<T, TRoot>
-        where T : class, new()
-        where TRoot : class, new()
+       where T : class, IEntity, new()
+       where TRoot : class, new()
     {
-
         public BaseWithDelete(
-           RestSharp.RestClient client,
-           string requestUrl,
-           Func<TRoot?, T?> rootToSingle,
-           Func<TRoot?, IList<T>?> rootToMultiple,
-           Func<T?, string?> itemToId) : base(client, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            RestClient? client, string? key,
+            string requestUrl,
+            Func<TRoot?, T?> rootToSingle,
+            Func<TRoot?, IList<T>?> rootToMultiple,
+            Func<T?, string?> itemToId) : base(client, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
         {
         }
 
-        public BaseWithDelete(
-           string key,
-           string requestUrl,
-           Func<TRoot?, T?> rootToSingle,
-           Func<TRoot?, IList<T>?> rootToMultiple,
-           Func<T?, string?> itemToId) : base(key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        public T Delete(string id)
         {
+            var request = new RestRequest(requestUrl + id, Method.Delete)
+            {
+                RequestFormat = DataFormat.Json
+            };
+
+            var response = client.Delete<TRoot>(request);
+            return rootToSingle(response);
         }
 
-        public bool Delete(string id)
+        public async Task<T> DeleteAsync(string id)
         {
-            try
+            var request = new RestRequest(requestUrl + id, Method.Delete)
             {
-                var request = new RestRequest(requestUrl + id, Method.Delete)
-                {
-                    RequestFormat = DataFormat.Json
-                };
+                RequestFormat = DataFormat.Json
+            };
 
-                var response = client.Delete<TRoot>(request);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var response = await  client.DeleteAsync<TRoot>(request);
+            return rootToSingle(response);
         }
     }
 }

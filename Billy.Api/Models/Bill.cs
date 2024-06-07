@@ -18,7 +18,7 @@ namespace Billy.Api.Models
     /// <summary>
     /// Simplified model of a Bill object.
     /// </summary>
-    public class Bill
+    public class Bill : IEntity
     {
         public string Id { get; set; }
         public string OrganizationId { get; set; }
@@ -46,6 +46,8 @@ namespace Billy.Api.Models
         public double Amount { get; set; }
         public double Tax { get; set; }
         public string CurrencyId { get; set; }
+        public Currency Currency { get; set; }
+
         public int ExchangeRate { get; set; }
         public int Balance { get; set; }
         public bool IsPaid { get; set; }

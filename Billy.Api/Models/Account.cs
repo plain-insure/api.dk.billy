@@ -10,20 +10,30 @@ namespace Billy.Api.Models
         public Meta Meta { get; set; }
         public Account Account { get; set; }
         public List<Account> Accounts { get; set; }
+        public List<AccountGroup> AccountGroups { get; set; }
+        public List<Organization> Organizations { get; set; }
+
     }
-    public class Account
+    public class Account : IEntity
     {
         public string Id { get; set; }
-        public string OrganizationId { get; set; }
+
+        public string? OrganizationId { get; set; }
+        public Organization? Organization { get; set; }
+
         public string NatureId { get; set; }
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
+
+
         public DateTime CreatedTime { get; set; }
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
+
+
         public DateTime UpdatedTime { get; set; }
         public object PredefinedAccountId { get; set; }
         public object PublicAccountId { get; set; }
         public string Name { get; set; }
         public string GroupId { get; set; }
+        public AccountGroup? Group { get; set; }
+
         public int AccountNo { get; set; }
         public string SystemRole { get; set; }
         public bool IsPaymentEnabled { get; set; }

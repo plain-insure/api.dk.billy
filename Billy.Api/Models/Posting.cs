@@ -2,7 +2,7 @@
 
 namespace Billy.Api.Models
 {
-    public class Posting
+    public class Posting : IEntity
     {
         public string Id { get; set; }
         public string OrganizationId { get; set; }
