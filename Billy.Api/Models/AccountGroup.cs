@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Billy.Api.Models
+﻿namespace Billy.Api.Models
 {
+    public class AccountGroupRoot
+    {
+        public Meta Meta { get; set; }
+        public AccountGroup AccountGroup { get; set; }
+        public List<AccountGroup> AccountGroups { get; set; }
+    }
+
     public class AccountGroup : IEntity
     { 
         public string Id { get; set; }
