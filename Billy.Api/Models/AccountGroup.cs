@@ -15,12 +15,12 @@
         public string Name { get; set; }
         public string Type { get; set; }
         public string NatureId { get; set; }
-        public string SumFrom { get; set; }
-        public string Style { get; set; }
+        public string? SumFrom { get; set; }
+        public string? Style { get; set; }
         public int Priority { get; set; }
-        public string IntervalFrom { get; set; }
-        public string IntervalTo { get; set; }
-        public bool AllowPaymentAmounts { get; set; }
-        public string PredefinedAccountGroupId { get; set; }
+        public int? IntervalFrom { get; set; }
+        public int? IntervalTo { get; set; }
+        public bool? AllowPaymentAmounts { get; set; }
+        public string? PredefinedAccountGroupId { get; set; }
     }
 }
