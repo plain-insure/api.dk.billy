@@ -6,7 +6,7 @@ namespace Billy.Api
     {
         private AccountGroups(RestSharp.RestClient? client, string? key) : base(
             client, key,
-            "accounts/",
+            "accountGroups/",
             (root) => root?.AccountGroup,
             (root) => root?.AccountGroups,
             (item) => item?.Id
