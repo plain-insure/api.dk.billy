@@ -2,6 +2,14 @@
 
 namespace Billy.Api.Models
 {
+    public class OrganizationRoot
+    {
+        public Meta Meta { get; set; }
+        public Organization Organization { get; set; }
+        public List<Organization> Organizations { get; set; }
+
+    }
+
     public class Organization : IEntity
     {
         public string Id { get; set; }
@@ -42,7 +50,7 @@ namespace Billy.Api.Models
         public string SubscriptionExpires { get; set; }
         public bool IsTrial { get; set; }
         public bool IsTerminated { get; set; }
-        public DateTime TerminationTime { get; set; }
+        public DateTime? TerminationTime { get; set; }
         public string LocaleId { get; set; }
         public string BillEmailAddress { get; set; }
         public bool IsUnmigrated { get; set; }
