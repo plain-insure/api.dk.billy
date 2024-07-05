@@ -36,6 +36,8 @@ jobs:
       run: dotnet build 
     - name: Test 
       run: dotnet test
+      env:
+        BILLY_TEST_APIKEY: ${{ secrets.BILLY_TEST_APIKEY }}
 
   create_nuget:
     runs-on: ubuntu-latest
