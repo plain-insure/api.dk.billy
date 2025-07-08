@@ -20,7 +20,7 @@
 	  <NoWarn>$(NoWarn);CS1591</NoWarn>
 	  <Authors>Plain, Peter</Authors>
 	  <PackageIcon>billy.png</PackageIcon>
-	  <Version>2.1.4</Version>
+	  <Version>2.1.5</Version>
   </PropertyGroup>
 
   <ItemGroup>
