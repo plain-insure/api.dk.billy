@@ -28,8 +28,8 @@ namespace Billy.Api.Models
 
 
         public DateTime UpdatedTime { get; set; }
-        public object PredefinedAccountId { get; set; }
-        public object PublicAccountId { get; set; }
+        public string? PredefinedAccountId { get; set; }
+        public string? PublicAccountId { get; set; }
         public string Name { get; set; }
         public string GroupId { get; set; }
         public AccountGroup? Group { get; set; }
