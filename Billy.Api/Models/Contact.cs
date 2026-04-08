@@ -1,4 +1,6 @@
-﻿namespace Billy.Api.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Billy.Api.Models
 {
 
     public class ContactRoot
@@ -17,6 +19,8 @@
         public string OrganizationId { get; set; }
         public string Name { get; set; }
         public string CountryId { get; set; }
+
+        [JsonIgnore]
         public Country Country { get; set; }
 
         public string Street { get; set; }
@@ -38,7 +42,10 @@
         public DateTime CreatedTime { get; set; }
         public string Name { get; set; }
         public string CountryId { get; set; }
-        public Country Country { get; set; }
+
+        [JsonIgnore]
+        public Country Country  { get => _country; set { _country = value; CountryId = value?.Id; } }
+        internal Country _country;
 
         public string Street { get; set; }
         public string CityId { get; set; }
@@ -51,11 +58,19 @@
         public string Phone { get; set; }
         public string Fax { get; set; }
         public string CurrencyId { get; set; }
-        public Currency Currency { get; set; }
+
+        [JsonIgnore]
+        public Currency Currency { get => _currency; set { _currency = value; CurrencyId = value?.Id; } }
+        internal Currency _currency;
+
         public string RegistrationNo { get; set; }
         public string Ean { get; set; }
         public string LocaleId { get; set; }
-        public Locale Locale { get; set; }
+
+        [JsonIgnore]
+        public Locale Locale { get => _locale; set { _locale = value; LocaleId = value?.Id; } }
+        internal Locale _locale;
+
         public bool IsCustomer { get; set; }
         public bool IsSupplier { get; set; }
         public string PaymentTermsMode { get; set; }
@@ -64,6 +79,8 @@
         public string EmailAttachmentDeliveryMode { get; set; }
         public bool IsArchived { get; set; }
         public bool IsSalesTaxExempt { get; set; }
+
+        [JsonIgnore]
         public List<ContactPerson> ContactPersons { get; set; }
     }
 

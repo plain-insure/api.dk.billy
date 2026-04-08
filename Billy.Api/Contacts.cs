@@ -15,7 +15,7 @@ namespace Billy.Api
             )
         {
         
-            this.AddSideload(c => c.Countries, c => c.Country);
+            this.AddSideload(c => c.Countries, c => c._country);
 
             //this.AddSideload(c => c.Currencies, c => c.Currency, c => c.CurrencyId);
             this.AddSideload(c => c.Locale);

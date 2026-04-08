@@ -46,7 +46,10 @@ namespace Billy.Api.Models
         public double Amount { get; set; }
         public double Tax { get; set; }
         public string CurrencyId { get; set; }
-        public Currency Currency { get; set; }
+
+        [JsonIgnore]
+        public Currency Currency { get => _currency; set { _currency = value; CurrencyId = value?.Id; } }
+        internal Currency _currency;
 
         public int ExchangeRate { get; set; }
         public int Balance { get; set; }
@@ -55,6 +58,8 @@ namespace Billy.Api.Models
         public object CreditedBillId { get; set; }
         public object Source { get; set; }
         public object Subject { get; set; }
+
+        [JsonIgnore]
         public List<BillLine> Lines { get; set; }
     }
 

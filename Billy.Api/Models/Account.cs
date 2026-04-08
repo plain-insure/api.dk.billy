@@ -19,6 +19,8 @@ namespace Billy.Api.Models
         public string Id { get; set; }
 
         public string? OrganizationId { get; set; }
+
+        [JsonIgnore]
         public Organization? Organization { get; set; }
 
         public string NatureId { get; set; }
@@ -32,6 +34,8 @@ namespace Billy.Api.Models
         public string? PublicAccountId { get; set; }
         public string Name { get; set; }
         public string GroupId { get; set; }
+
+        [JsonIgnore]
         public AccountGroup? Group { get; set; }
 
         public int AccountNo { get; set; }
