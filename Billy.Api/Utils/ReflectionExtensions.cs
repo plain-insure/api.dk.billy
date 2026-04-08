@@ -34,20 +34,17 @@ namespace Billy.Api.Utils
             var parameterExp1 = Expression.Parameter(typeof(T));
             var parameterExp2 = Expression.Parameter(typeof(TProperty));
 
-            // turning an expression body into a PropertyInfo is common enough
-            // that it's a good idea to extract this to a reusable method
             var memberExp = (MemberExpression)exp.Body;
-            var propertyInfo = (PropertyInfo)memberExp.Member;
 
-            // use the PropertyInfo to make a property expression
-            // for the first parameter (the object)
-            var propertyExp = Expression.Property(parameterExp1, propertyInfo);
+            MemberExpression memberAccessExp = memberExp.Member switch
+            {
+                PropertyInfo propertyInfo => Expression.Property(parameterExp1, propertyInfo),
+                FieldInfo fieldInfo => Expression.Field(parameterExp1, fieldInfo),
+                _ => throw new ArgumentException("Expression must refer to a property or field", nameof(exp))
+            };
 
-            // assignment expression that assigns the second parameter (value) to the property
-            var assignmentExp = Expression.Assign(propertyExp, parameterExp2);
+            var assignmentExp = Expression.Assign(memberAccessExp, parameterExp2);
 
-            // then just build the lambda, which takes 2 parameters, and has the assignment
-            // expression for its body
             var setterExp = Expression.Lambda<Action<T, TProperty>>(
                assignmentExp,
                parameterExp1,
@@ -61,9 +58,11 @@ namespace Billy.Api.Utils
         public static Func<T, string> CreateIdGetter<T, TProperty>(this Expression<Func<T, TProperty>> expression)
         {
             var memberExpression = (MemberExpression)expression.Body;
-            var propInfo = (PropertyInfo)memberExpression.Member ?? throw new ArgumentException("The expression must be a property", nameof(expression));
+            var memberInfo = memberExpression.Member ?? throw new ArgumentException("The expression must be a member", nameof(expression));
 
-            var propIdInfo = propInfo.DeclaringType.GetProperty($"{propInfo.Name}Id");
+            var normalizedName = NormalizeMemberName(memberInfo.Name);
+            var propIdInfo = typeof(T).GetProperty($"{normalizedName}Id")
+                ?? throw new ArgumentException($"No property '{normalizedName}Id' found on type '{typeof(T).Name}'", nameof(expression));
             var parameter = Expression.Parameter(typeof(T));
             var property = Expression.Property(parameter, propIdInfo);
             var lambda = Expression.Lambda<Func<T, string>>(property, parameter);
@@ -74,14 +73,22 @@ namespace Billy.Api.Utils
         public static Func<S, IEnumerable<TProperty>> CreateListGetter<T, S, TProperty>(this Expression<Func<T, TProperty>> expression)
         {
             var memberExpression = (MemberExpression)expression.Body;
-            var propInfo = (PropertyInfo)memberExpression.Member ?? throw new ArgumentException("The expression must be a property", nameof(expression));
+            var memberInfo = memberExpression.Member ?? throw new ArgumentException("The expression must be a member", nameof(expression));
 
-            var propIdInfo = (typeof (S)).GetProperty($"{propInfo.Name}s");
+            var normalizedName = NormalizeMemberName(memberInfo.Name);
+            var propIdInfo = typeof(S).GetProperty($"{normalizedName}s")
+                ?? throw new ArgumentException($"No property '{normalizedName}s' found on type '{typeof(S).Name}'", nameof(expression));
             var parameter = Expression.Parameter(typeof(S));
             var property = Expression.Property(parameter, propIdInfo);
             var lambda = Expression.Lambda<Func<S, IEnumerable<TProperty>>>(property, parameter);
 
             return lambda.Compile();
+        }
+
+        private static string NormalizeMemberName(string name)
+        {
+            name = name.TrimStart('_');
+            return name.Length > 0 ? char.ToUpper(name[0]) + name[1..] : name;
         }
 
     }
