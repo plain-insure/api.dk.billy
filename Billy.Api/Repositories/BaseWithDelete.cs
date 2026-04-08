@@ -11,7 +11,8 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId) : base(client, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            Func<T?, string?> itemToId,
+            Func<T, TRoot> singleToRoot) : base(client, key, requestUrl, rootToSingle, rootToMultiple, itemToId, singleToRoot)
         {
         }
 

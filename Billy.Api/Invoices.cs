@@ -10,7 +10,8 @@ namespace Billy.Api
             "invoices/",
             (root) => root.Invoice,
             (root) => root.Invoices,
-            (item) => item.Id
+            (item) => item.Id,
+            (item) => new InvoiceRoot { Invoice = item }
             )
         { }
 
@@ -19,7 +20,8 @@ namespace Billy.Api
             "invoices/",
             (root) => root.Invoice,
             (root) => root.Invoices,
-            (item) => item.Id
+            (item) => item.Id,
+            (item) => new InvoiceRoot { Invoice = item }
             )
         { }
 

@@ -9,7 +9,8 @@ namespace Billy.Api
             "bills/",
             (root) => root?.Bill,
             (root) => root?.Bills,
-            (item) => item?.Id
+            (item) => item?.Id,
+            (item) => new BillRoot { Bill = item }
             )
         { }
 
@@ -18,7 +19,8 @@ namespace Billy.Api
             "bills/",
             (root) => root?.Bill,
             (root) => root?.Bills,
-            (item) => item?.Id
+            (item) => item?.Id,
+            (item) => new BillRoot { Bill = item }
             )
         { }
 

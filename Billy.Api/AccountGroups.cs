@@ -9,7 +9,8 @@ namespace Billy.Api
             "accountGroups/",
             (root) => root?.AccountGroup,
             (root) => root?.AccountGroups,
-            (item) => item?.Id
+            (item) => item?.Id,
+            (item) => new AccountGroupRoot { AccountGroup = item }
             )
         {
 

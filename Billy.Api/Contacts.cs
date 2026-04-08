@@ -10,7 +10,8 @@ namespace Billy.Api
             "contacts/",
             (root) => root.Contact,
             (root) => root.Contacts,
-            (item) => item.Id
+            (item) => item.Id,
+            (item) => new ContactRoot { Contact = item }
             )
         {
         

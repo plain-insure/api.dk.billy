@@ -14,6 +14,7 @@ namespace Billy.Api.Repositories
         protected readonly Func<TRoot?, T?> rootToSingle;
         protected readonly Func<TRoot?, IList<T>?> rootToMultiple;
         protected readonly Func<T?, string?> itemToId;
+        protected readonly Func<T, TRoot> singleToRoot;
         protected readonly string requestUrl;
 
         private readonly List<Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>> sideloads = [];
@@ -25,7 +26,8 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId)
+            Func<T?, string?> itemToId,
+            Func<T, TRoot> singleToRoot)
         {
             if (client is null && key is null)
                 throw new ArgumentNullException(nameof(client), "Either a client or a key must be provided");
@@ -44,6 +46,7 @@ namespace Billy.Api.Repositories
             this.rootToSingle = rootToSingle;
             this.rootToMultiple = rootToMultiple;
             this.itemToId = itemToId;
+            this.singleToRoot = singleToRoot;
         }
 
         public Base(
@@ -51,7 +54,8 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId) : this (client, null, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            Func<T?, string?> itemToId,
+            Func<T, TRoot> singleToRoot) : this (client, null, requestUrl, rootToSingle, rootToMultiple, itemToId, singleToRoot)
         {
         }
 
@@ -60,7 +64,8 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId) : this (null, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            Func<T?, string?> itemToId,
+            Func<T, TRoot> singleToRoot) : this (null, key, requestUrl, rootToSingle, rootToMultiple, itemToId, singleToRoot)
         {
         }
 
@@ -271,7 +276,7 @@ namespace Billy.Api.Repositories
                 RequestFormat = DataFormat.Json
             };
 
-            request.AddJsonBody(item);
+            request.AddJsonBody(singleToRoot(item));
 
             var result = client.Post<TRoot>(request);
             return itemToId(rootToMultiple(result)?[0]);
@@ -289,7 +294,7 @@ namespace Billy.Api.Repositories
                 RequestFormat = DataFormat.Json
             };
 
-            request.AddJsonBody(item);
+            request.AddJsonBody(singleToRoot(item));
 
             var result = await client.PostAsync<TRoot>(request);
             return itemToId(rootToMultiple(result)?[0]);
