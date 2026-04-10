@@ -48,13 +48,13 @@ namespace Billy.Api.Tests
         private void DeleteProduct(string productId) =>
             new Products(Client).Delete(productId);
 
-        private Invoice BuildDraftInvoice(string contactId, string productId) => new()
+        private Invoice BuildInvoice(string contactId, string productId, string state = "draft") => new()
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
             EntryDate = DateTime.Now,
             PaymentTermsDays = 0,
-            State = "draft",
+            State = state,
             SentState = "unsent",
             TaxMode = "incl",
             Lines =
@@ -75,7 +75,7 @@ namespace Billy.Api.Tests
             var productId = CreateProduct();
             try
             {
-                var id = service.Create(BuildDraftInvoice(contactId, productId));
+                var id = service.Create(BuildInvoice(contactId, productId));
                 var result = service.Get(id);
                 service.Delete(id);
                 Assert.AreEqual(id, result.Id);
@@ -98,18 +98,24 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Create()
         {
+            var draft = false;
+
             var contactId = CreateCustomerContact();
             var productId = CreateProduct();
             try
             {
-                var id = service.Create(BuildDraftInvoice(contactId, productId));
-                service.Delete(id);
+                var id = service.Create(BuildInvoice(contactId, productId, draft ? "draft" : "approved"));
+                if (draft)
+                    service.Delete(id);
                 Assert.IsNotNull(id);
             }
             finally
             {
-                DeleteContact(contactId);
-                DeleteProduct(productId);
+                if (draft)
+                {
+                    DeleteContact(contactId);
+                    DeleteProduct(productId);
+                }
             }
         }
     }

@@ -3,6 +3,7 @@
 namespace Billy.Api.Models
 {
 
+    [JsonConverter(typeof(JsonStringEnumConverter<TransactionSide>))]
     public enum TransactionSide
     {
         Debit,

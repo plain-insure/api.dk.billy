@@ -9,7 +9,10 @@ namespace Billy.Api.Utils
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             TypeInfoResolver = new IgnoreOnWriteTypeInfoResolver(),
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            Converters = {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            }
             // add your other shared settings here:
             // DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             // Converters = { ... }
