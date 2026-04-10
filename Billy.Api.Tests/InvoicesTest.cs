@@ -98,7 +98,7 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Create()
         {
-            var draft = false;
+            var draft = true;
 
             var contactId = CreateCustomerContact();
             var productId = CreateProduct();
