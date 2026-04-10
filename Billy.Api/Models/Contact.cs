@@ -1,51 +1,46 @@
-﻿using System.Text.Json.Serialization;
+﻿using Billy.Api.Utils;
+using System.Text.Json.Serialization;
 
 namespace Billy.Api.Models
 {
 
-    public class ContactRoot
+    public class ContactIdList
     {
-        public Meta Meta { get; set; }
-        public Contact Contact { get; set; }
-        public List<Contact> Contacts { get; set; }
-        public List<Country> Countries { get; set; }
-        public List<Currency> Currencies { get; set; }
-        public List<Locale> Locales { get; set; }
+        public List<string>? Contacts { get; set; }
+
     }
 
-    public class PostContact
+
+    public class ContactRoot : Root<ContactIdList>
     {
-        public string Type { get; set; }
-        public string OrganizationId { get; set; }
-        public string Name { get; set; }
-        public string CountryId { get; set; }
-
-        [JsonIgnore]
-        public Country Country { get; set; }
-
-        public string Street { get; set; }
-        public string CityText { get; set; }
-        public object ZipcodeId { get; set; }
-        public string ZipcodeText { get; set; }
-        public string Phone { get; set; }
-        public string RegistrationNo { get; set; }
-        public bool IsCustomer { get; set; }
-        public bool IsSupplier { get; set; }
-        public List<ContactPerson> ContactPersons { get; set; }
+        public List<Contact>? Contacts { get; set; }
+        public Contact? Contact { get; set; }
+        public List<Country>? Countries { get; set; }
+        public List<Currency>? Currencies { get; set; }
+        public List<Locale>? Locales { get; set; }
     }
 
     public class Contact : IEntity
     {
-        public string Id { get; set; }
-        public string Type { get; set; }
-        public string OrganizationId { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public string Name { get; set; }
-        public string CountryId { get; set; }
+
+        [JsonIgnoreOnWrite]
+        public virtual DateTime CreatedTime { get; set; }
 
         [JsonIgnore]
-        public Country Country  { get => _country; set { _country = value; CountryId = value?.Id; } }
-        internal Country _country;
+        public Country Country { get; set; }
+        [JsonIgnore]
+        public Currency Currency { get; set; }
+        [JsonIgnore]
+        public Locale Locale { get; set; }
+
+        public List<ContactPerson> ContactPersons { get; set; }
+
+        public string? Id { get; set; }
+        public required string Type { get; set; }
+        public string OrganizationId { get; set; }
+
+        public required string Name { get; set; }
+        public required string CountryId { get; set; }
 
         public string Street { get; set; }
         public string CityId { get; set; }
@@ -57,19 +52,11 @@ namespace Billy.Api.Models
         public string ContactNo { get; set; }
         public string Phone { get; set; }
         public string Fax { get; set; }
-        public string CurrencyId { get; set; }
-
-        [JsonIgnore]
-        public Currency Currency { get => _currency; set { _currency = value; CurrencyId = value?.Id; } }
-        internal Currency _currency;
+        public string? CurrencyId { get; set; }
 
         public string RegistrationNo { get; set; }
         public string Ean { get; set; }
-        public string LocaleId { get; set; }
-
-        [JsonIgnore]
-        public Locale Locale { get => _locale; set { _locale = value; LocaleId = value?.Id; } }
-        internal Locale _locale;
+        public string? LocaleId { get; set; }
 
         public bool IsCustomer { get; set; }
         public bool IsSupplier { get; set; }
@@ -80,8 +67,7 @@ namespace Billy.Api.Models
         public bool IsArchived { get; set; }
         public bool IsSalesTaxExempt { get; set; }
 
-        [JsonIgnore]
-        public List<ContactPerson> ContactPersons { get; set; }
     }
+
 
 }

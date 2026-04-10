@@ -9,8 +9,7 @@ namespace Billy.Api
             "organizations/",
             (root) => root?.Organization,
             (root) => root?.Organizations,
-            (item) => item?.Id,
-            (item) => new OrganizationRoot { Organization = item } // Create is unsupported for Organizations.
+            (item) => item?.Id
             )
         { }
 
@@ -19,8 +18,7 @@ namespace Billy.Api
             "organizations/",
             (root) => root?.Organization,
             (root) => root?.Organizations,
-            (item) => item?.Id,
-            (item) => new OrganizationRoot { Organization = item } // Create is unsupported for Organizations.
+            (item) => item?.Id
             )
         { }
 

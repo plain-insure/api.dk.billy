@@ -8,14 +8,15 @@ namespace Billy.Api
         public  Contacts(RestSharp.RestClient? client, string? key) : base(
             client, key,
             "contacts/",
-            (root) => root.Contact,
-            (root) => root.Contacts,
-            (item) => item.Id,
-            (item) => new ContactRoot { Contact = item }
+            (root) => root?.Contact,
+            (root) => root?.Contacts,
+            (item) => item?.Id,
+            (item) => new ContactRoot { Contact = item },
+            (root) => root?.Meta?.DeletedRecords?.Contacts?.FirstOrDefault()
             )
         {
         
-            this.AddSideload(c => c.Countries, c => c._country);
+            this.AddSideload(c => c.Countries, c => c.Country);
 
             //this.AddSideload(c => c.Currencies, c => c.Currency, c => c.CurrencyId);
             this.AddSideload(c => c.Locale);

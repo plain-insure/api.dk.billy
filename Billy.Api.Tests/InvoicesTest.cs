@@ -1,35 +1,38 @@
 ﻿
 
 using Billy.Api.Models;
+using RestSharp;
 
 namespace Billy.Api.Tests
 {
     [TestClass]
-    public class InvoicesTest : TestBase
+    public class InvoicesTest : TestBase<Invoices>
     {
-        private readonly Invoices service = new(ApiKey);
 
-        //TODO: Fix this test
+        public override Invoices CreateService(RestClient client) => new(client);
+
+
+        [TestMethod]
         public void Get()
         {
             // Arrange
+
             var id = service.Create(new Invoice
             {
                 OrganizationId = OrganizationId,
-                ContactId = "",
+                ContactId = "KB09VU96TeO84hItK2B97w",
                 EntryDate = DateTime.Now,
                 PaymentTermsDays = 0,
-                State = "approved",
+                State = "draft",
                 SentState = "unsent",
                 TaxMode = "incl",
-                InvoiceNo = "",
                 Lines = new List<InvoiceLine>
                 {
                     new InvoiceLine
                     {
-                        UnitPrice = 0,
-                        ProductId = "",
-                        Description = ""
+                        UnitPrice = 200,
+                        ProductId = "ZmWlw8FzRI6mMOkdeWCcXg",
+                        Description = "Test line"
                     }
                 }
             });
@@ -39,6 +42,9 @@ namespace Billy.Api.Tests
 
             // Assert
             Assert.IsNotNull(result);
+
+            service.Delete(id); // we can delete draft invoices, so we clean up after ourselves
+
         }
 
         [TestMethod]
@@ -51,31 +57,34 @@ namespace Billy.Api.Tests
             Assert.IsNotNull(result);
         }
 
-        //TODO: Fix this test
+        [TestMethod]
         public void Create()
         {
+
             var result = service.Create(new Invoice
             {
                 OrganizationId = OrganizationId,
-                ContactId = "",
+                ContactId = "KB09VU96TeO84hItK2B97w",
                 EntryDate = DateTime.Now,
                 PaymentTermsDays = 0,
-                State = "approved",
+                State = "draft",
                 SentState = "unsent",
                 TaxMode = "incl",
-                InvoiceNo = "",
                 Lines = new List<InvoiceLine>
                 {
                     new InvoiceLine
                     {
-                        UnitPrice = 0,
-                        ProductId = "",
-                        Description = ""
+                        UnitPrice = 100,
+                        ProductId = "ZmWlw8FzRI6mMOkdeWCcXg",
+                        Description = "Test line"
                     }
                 }
             });
 
             Assert.IsNotNull(result);
+
+            service.Delete(result); // we can delete draft invoices, so we clean up after ourselves
+
         }
     }
 }

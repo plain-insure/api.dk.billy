@@ -1,81 +1,99 @@
 ﻿using Billy.Api.Models;
+using RestSharp;
 
 namespace Billy.Api.Tests
 {
     [TestClass]
-    public class BillServiceTest : TestBase
+    public class BillServiceTest : TestBase<Bills>
     {
-        private readonly Bills service = new(ApiKey);
+        public override Bills CreateService(RestClient client) => new(client);
 
-        //TODO: Fix this test
+        [TestMethod]
         public void Get()
         {
-            // Arrange
             var id = service.Create(new Bill
             {
                 OrganizationId = OrganizationId,
-                ContactId = "",
+                ContactId = "GefjTensSluwEUkmmdBYCA",
                 EntryDate = DateTime.Now,
                 State = BillStates.draft,
                 TaxMode = "incl",
-                SuppliersInvoiceNo = "",
                 Lines = new List<BillLine>
                 {
                     new BillLine
                     {
-                        AccountId = "",
-                        Amount = 0,
-                        Description = "",
-                        TaxRateId = ""
+                        AccountId = "pdU7q2jETY6YehhE9ePR2g",
+                        Amount = 100,
+                        Description = "Test line"
                     }
                 }
             });
 
-            // Act
             var result = service.Get(id);
 
-            // Assert
-            Assert.IsNotNull(result);
+            service.Delete(id);
+
+            Assert.AreEqual(id, result.Id);
         }
 
         [TestMethod]
         public void List()
         {
-            // Act
             var result = service.List();
 
-            // Assert
             Assert.IsNotNull(result);
         }
 
-        /*
         [TestMethod]
         public void Create()
         {
-            // Act
-            var result = service.Create(new Bill
+            var id = service.Create(new Bill
             {
-                organizationId = "",
-                contactId = "",
-                entryDate = DateTime.Now,
-                state = "approved",
-                taxMode = "incl",
-                suppliersInvoiceNo = "",
-                lines = new List<BillLine>
+                OrganizationId = OrganizationId,
+                ContactId = "GefjTensSluwEUkmmdBYCA",
+                EntryDate = DateTime.Now,
+                State = BillStates.draft,
+                TaxMode = "incl",
+                Lines = new List<BillLine>
                 {
                     new BillLine
                     {
-                        accountId = "",
-                        amount = 0,
-                        description = "",
-                        taxRateId = ""
+                        AccountId = "pdU7q2jETY6YehhE9ePR2g",
+                        Amount = 100,
+                        Description = "Test line"
                     }
                 }
             });
 
-            // Assert
+            service.Delete(id);
+
+            Assert.IsNotNull(id);
+        }
+
+        [TestMethod]
+        public void Delete()
+        {
+            var id = service.Create(new Bill
+            {
+                OrganizationId = OrganizationId,
+                ContactId = "GefjTensSluwEUkmmdBYCA",
+                EntryDate = DateTime.Now,
+                State = BillStates.draft,
+                TaxMode = "incl",
+                Lines = new List<BillLine>
+                {
+                    new BillLine
+                    {
+                        AccountId = "pdU7q2jETY6YehhE9ePR2g",
+                        Amount = 100,
+                        Description = "Test line"
+                    }
+                }
+            });
+
+            var result = service.Delete(id);
+
             Assert.IsNotNull(result);
         }
-        */
     }
 }

@@ -1,5 +1,12 @@
 ﻿namespace Billy.Api.Models
 {
+
+
+    public class Root<TList> where TList : class
+    {
+        public Meta<TList>? Meta { get; set; }
+    }
+
     public class Meta
     {
         public int StatusCode { get; set; }
@@ -8,13 +15,18 @@
         public Paging Paging { get; set; }
     }
 
+    public class Meta<TRoot> : Meta where TRoot : class
+    {
+        public TRoot? DeletedRecords { get; set; }
+    }
+
     public class Paging
     {
         public int Page { get; set; }
         public int PageCount { get; set; }
         public int PageSize { get; set; }
         public int Total { get; set; }
-                public string FirstUrl { get; set; }
+        public string FirstUrl { get; set; }
         public string PreviousUrl { get; set; }
         public string NextUrl { get; set; }
         public string LastUrl { get; set; }

@@ -1,19 +1,26 @@
 ﻿using Billy.Api.Models;
+using Billy.Api.Utils;
+using RestSharp;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Billy.Api.Tests
 {
     [TestClass]
-    public class ContactsTest : TestBase
+    public class ContactsTest : TestBase<Contacts>
     {
-        private readonly Contacts service = new(ApiKey);
 
-        //TODO: Fix this test
+        public override Contacts CreateService(RestClient client) => new(client);
+
+        [TestMethod]
         public void Get()
         {
+
+
             var create = service.Create(new Contact
             {
+                Type = "company",
                 OrganizationId = OrganizationId,
-                Name = "",
+                Name = "Test Get Company",
                 CountryId = Countries.DK.ToString(),
                 Street = "",
                 ZipcodeText = "",
@@ -25,8 +32,8 @@ namespace Billy.Api.Tests
                 {
                     new ContactPerson
                     {
-                        Email = "",
-                        Name = ""
+                        Email = "test@example.com",
+                        Name = "Test Person"
                     }
                 }
             });
@@ -43,6 +50,7 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void List()
         {
+
             var result = service.List();
 
             // Cleanup
@@ -50,29 +58,22 @@ namespace Billy.Api.Tests
             Assert.IsNotNull(result);
         }
 
-        //TODO: Fix this test
+        [TestMethod]
         public void Create()
         {
             // Act
             var result = service.Create(new Contact
             {
+                Type = "company",
                 OrganizationId = OrganizationId,
-                Name = "",
+                Name = "Test Create Company",
                 CountryId = Countries.DK.ToString(),
                 Street = "",
                 ZipcodeText = "",
                 CityText = "",
                 Phone = "",
                 IsCustomer = true,
-                IsSupplier = false,
-                ContactPersons = new List<ContactPerson>
-                {
-                    new ContactPerson
-                    {
-                        Email = "",
-                        Name = ""
-                    }
-                }
+                IsSupplier = false
             });
 
             var deleteResult = service.Delete(result);
@@ -82,14 +83,15 @@ namespace Billy.Api.Tests
         }
 
 
-        //TODO: Fix this test
+        [TestMethod]
         public void Delete()
         {
             // Arrange
             var create = service.Create(new Contact
             {
+                Type = "company",
                 OrganizationId = OrganizationId,
-                Name = "",
+                Name = "Test Delete Company",
                 CountryId = Countries.DK.ToString(),
                 Street = "",
                 ZipcodeText = "",

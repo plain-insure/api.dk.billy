@@ -1,10 +1,10 @@
 ﻿namespace Billy.Api.Tests
 {
     [TestClass]
-    public class OrganizationTest : TestBase
+    public class OrganizationTest : TestBase<Organizations>
     {
 
-        private readonly Organizations service = new(ApiKey);
+        public override Organizations CreateService(RestSharp.RestClient client) => new(client);
 
         [TestMethod]
         public void Get()

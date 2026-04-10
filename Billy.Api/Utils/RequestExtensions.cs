@@ -1,11 +1,19 @@
 ﻿
 using Billy.Api.Models;
 using RestSharp;
+using System.Text.Json;
 
 namespace Billy.Api.Utils
 {
     public static class RequestExtensions
     {
+
+        public static RestRequest AddJsonBodyWithSharedOptions(this RestRequest request, object body)
+        {
+            var json = JsonSerializer.Serialize(body, RestJsonOptions.Instance);
+            request.AddStringBody(json, DataFormat.Json);
+            return request;
+        }
 
         public static void AddSorting(this RestRequest request, string sortProperty, SortOrder sortOrder)
         {

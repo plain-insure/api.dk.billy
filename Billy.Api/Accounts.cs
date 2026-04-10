@@ -11,8 +11,7 @@ namespace Billy.Api
             "accounts/",
             (root) => root?.Account,
             (root) => root?.Accounts,
-            (item) => item?.Id,
-            (item) => new AccountRoot { Account = item }
+            (item) => item?.Id
             )
         {
             AddSideload(r => r.AccountGroups, a => a.Group); // Same as:

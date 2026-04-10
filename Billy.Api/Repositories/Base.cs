@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace Billy.Api.Repositories
 {
     public abstract class Base<T, TRoot>
-        where T : class, IEntity, new()
+        where T : class, IEntity
         where TRoot : class, new()
     {
 
@@ -14,7 +14,6 @@ namespace Billy.Api.Repositories
         protected readonly Func<TRoot?, T?> rootToSingle;
         protected readonly Func<TRoot?, IList<T>?> rootToMultiple;
         protected readonly Func<T?, string?> itemToId;
-        protected readonly Func<T, TRoot> singleToRoot;
         protected readonly string requestUrl;
 
         private readonly List<Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>> sideloads = [];
@@ -26,8 +25,7 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId,
-            Func<T, TRoot> singleToRoot)
+            Func<T?, string?> itemToId)
         {
             if (client is null && key is null)
                 throw new ArgumentNullException(nameof(client), "Either a client or a key must be provided");
@@ -46,7 +44,6 @@ namespace Billy.Api.Repositories
             this.rootToSingle = rootToSingle;
             this.rootToMultiple = rootToMultiple;
             this.itemToId = itemToId;
-            this.singleToRoot = singleToRoot;
         }
 
         public Base(
@@ -54,8 +51,7 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId,
-            Func<T, TRoot> singleToRoot) : this (client, null, requestUrl, rootToSingle, rootToMultiple, itemToId, singleToRoot)
+            Func<T?, string?> itemToId) : this(client, null, requestUrl, rootToSingle, rootToMultiple, itemToId)
         {
         }
 
@@ -64,13 +60,12 @@ namespace Billy.Api.Repositories
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
             Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId,
-            Func<T, TRoot> singleToRoot) : this (null, key, requestUrl, rootToSingle, rootToMultiple, itemToId, singleToRoot)
+            Func<T?, string?> itemToId) : this(null, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
         {
         }
 
 
-        public void AddSideload<S>( Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
+        public void AddSideload<S>(Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
         {
             var listGetter = ReflectionExtensions.CreateListGetter<T, TRoot, S>(itemProperty);
             AddSideload(listGetter, itemProperty);
@@ -90,7 +85,7 @@ namespace Billy.Api.Repositories
         }
 
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, Func<T, string?> sideloadId) where S : class, IEntity, new()
-        {            
+        {
             var setter = ReflectionExtensions.GetSetter(itemProperty);
             AddSideload(sideloadedObject, setter, sideloadId);
         }
@@ -264,41 +259,6 @@ namespace Billy.Api.Repositories
             return items;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public string? Create(T item)
-        {
-            var request = new RestRequest(requestUrl, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(singleToRoot(item));
-
-            var result = client.Post<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public async Task<string?> CreateAsync(T item)
-        {
-            var request = new RestRequest(requestUrl, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(singleToRoot(item));
-
-            var result = await client.PostAsync<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
-        }
 
 
 
@@ -324,5 +284,67 @@ namespace Billy.Api.Repositories
                 sideload.Item2(item, sideloaded);
             }
         }
+    }
+
+    public abstract class BaseWithCreate<T, TRoot> : Base<T, TRoot>
+        where T : class, IEntity
+        where TRoot : class, new()
+    {
+        protected readonly Func<T, TRoot> singleToRoot;
+
+
+        protected BaseWithCreate(RestClient? client, string? key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
+            base(client, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        {
+            this.singleToRoot = singleToRoot;
+        }
+        protected BaseWithCreate(RestClient client, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
+            base(client, null, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        {
+            this.singleToRoot = singleToRoot;
+        }
+        protected BaseWithCreate(string key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
+            base(null, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        {
+            this.singleToRoot = singleToRoot;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string? Create(T item)
+        {
+            var request = new RestRequest(requestUrl, Method.Post)
+            {
+                RequestFormat = DataFormat.Json
+            };
+
+            request.AddJsonBodyWithSharedOptions(singleToRoot(item));
+
+            var result = client.Post<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public async Task<string?> CreateAsync(T item)
+        {
+            var request = new RestRequest(requestUrl, Method.Post)
+            {
+                RequestFormat = DataFormat.Json
+            };
+
+            request.AddJsonBodyWithSharedOptions(singleToRoot(item));
+
+            var result = await client.PostAsync<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
+
+
     }
 }
