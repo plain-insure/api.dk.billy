@@ -8,16 +8,28 @@ namespace Billy.Api.Tests
     {
         public override Products CreateService(RestClient client) => new(client);
 
+        private string productAccountId = default!;
+
+        [TestInitialize]
+        public void InitializeTestData()
+        {
+            productAccountId = new Accounts(Client).List()
+                ?.FirstOrDefault(a => a.NatureId == "revenue")?.Id
+                ?? throw new InvalidOperationException("No revenue account found in the organisation");
+        }
+
+        private Product BuildTestProduct(string name) => new()
+        {
+            OrganizationId = OrganizationId,
+            Name = name,
+            AccountId = productAccountId,
+            Unit = "pieces"
+        };
+
         [TestMethod]
         public void Get()
         {
-            var id = service.Create(new Product
-            {
-                OrganizationId = OrganizationId,
-                AccountId = "0rNTvLTZS32KDV0TFTlm5w",
-                Name = "Test Get Product",
-                Unit = "pieces"
-            });
+            var id = service.Create(BuildTestProduct("Test Get Product"));
 
             var result = service.Get(id);
 
@@ -37,13 +49,7 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Create()
         {
-            var id = service.Create(new Product
-            {
-                OrganizationId = OrganizationId,
-                Name = "Test Create Product",
-                AccountId = "0rNTvLTZS32KDV0TFTlm5w",
-                Unit = "pieces"
-            });
+            var id = service.Create(BuildTestProduct("Test Create Product"));
 
             service.Delete(id);
 
@@ -53,13 +59,7 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Delete()
         {
-            var id = service.Create(new Product
-            {
-                OrganizationId = OrganizationId,
-                Name = "Test Delete Product",
-                AccountId = "0rNTvLTZS32KDV0TFTlm5w",
-                Unit = "pieces"
-            });
+            var id = service.Create(BuildTestProduct("Test Delete Product"));
 
             var result = service.Delete(id);
 

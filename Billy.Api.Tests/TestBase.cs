@@ -16,14 +16,15 @@ namespace Billy.Api.Tests
 
 #pragma warning disable CS8618 
         internal T service;
+        protected RestSharp.RestClient Client { get; private set; }
 #pragma warning restore CS8618 
 
         [TestInitialize]
         public void Initialize()
         {
             var httpClient = new HttpClient();
-            var client = ClientExtensions.CreateBillyClient(httpClient, ApiKey, billyDebugLog);
-            service = CreateService(client);
+            Client = ClientExtensions.CreateBillyClient(httpClient, ApiKey, billyDebugLog);
+            service = CreateService(Client);
         }
 
         [TestCleanup]
