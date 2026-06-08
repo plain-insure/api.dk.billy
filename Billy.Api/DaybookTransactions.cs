@@ -13,7 +13,9 @@ namespace Billy.Api
             (item) => new DaybookTransactionRoot { DaybookTransaction = item },
             (root) => root?.Meta?.DeletedRecords?.DaybookTransactions?.FirstOrDefault()
         )
-        { }
+        {
+            this.AddSideload(r => r.DaybookTransactionLines, d => d.Lines);
+        }
 
         public DaybookTransactions(string key) : base(
             key,
@@ -24,6 +26,8 @@ namespace Billy.Api
             (item) => new DaybookTransactionRoot { DaybookTransaction = item },
             (root) => root?.Meta?.DeletedRecords?.DaybookTransactions?.FirstOrDefault()
         )
-        { }
+        {
+            this.AddSideload(r => r.DaybookTransactionLines, d => d.Lines);
+        }
     }
 }

@@ -15,7 +15,6 @@ namespace Billy.Api
             )
         {
 
-            this.AddSideload(r => r.BillLines, b => b.Lines);
         }
 
         public Bills(string key) : base(
@@ -27,6 +26,12 @@ namespace Billy.Api
             (item) => new BillRoot { Bill = item },
             (root) => root?.Meta?.DeletedRecords?.Bills?.FirstOrDefault()
             )
-        { }
+        {
+        }
+
+        public void SideloadLines()
+        {
+            this.AddSideload(r => r.BillLines, b => b.Lines);
+        }
     }
 }

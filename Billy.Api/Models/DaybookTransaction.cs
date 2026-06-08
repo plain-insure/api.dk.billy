@@ -41,7 +41,7 @@ namespace Billy.Api.Models
         public List<DaybookTransactionLine>? Lines { get; set; }
     }
 
-    public class DaybookTransactionLine
+    public class DaybookTransactionLine : IEntity
     {
         public string? Id { get; set; }
         public string? DaybookTransactionId { get; set; }

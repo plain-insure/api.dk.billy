@@ -14,10 +14,10 @@ namespace Billy.Api
             (item) => item?.Id
             )
         {
-            AddSideload(r => r.AccountGroups, a => a.Group); // Same as:
+            AddSideload(r => r.AccountGroups, a => a.Group, "accounts.group"); // Same as:
             //AddSideload(r => r.AccountGroups, a => a.Group, a => a.GroupId);
 
-            AddSideload(r => r.Organization); // Same as:
+            AddSideload(r => r.Organization, "account.organization"); // Same as:
             //AddSideload(r => r.Organizations, a => a.Organization, a => a.OrganizationId);
         }
 

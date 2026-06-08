@@ -2,7 +2,6 @@
 using Billy.Api.Utils;
 using RestSharp;
 using System.Linq.Expressions;
-using System.Text.Json;
 
 namespace Billy.Api.Repositories
 {
@@ -14,10 +13,60 @@ namespace Billy.Api.Repositories
         protected readonly RestClient client;
         protected readonly Func<TRoot?, T?> rootToSingle;
         protected readonly Func<TRoot?, IList<T>?> rootToMultiple;
-        protected readonly Func<T?, string?> itemToId;
         protected readonly string requestUrl;
 
-        private readonly List<Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>> sideloads = [];
+        internal abstract class SideloadDescriptor(string includeProperty)
+        {
+
+            public string IncludeProperty { get; set; } = includeProperty;
+
+            internal abstract void ApplyAll(TRoot root, IList<T> items);
+        }
+
+        private sealed class SingleSideloadDescriptor<S>(
+            Func<TRoot, IEnumerable<S>?> getCandidates,
+            Func<T, string?> getId,
+            Action<T, S> apply, string includeProperty) : SideloadDescriptor(includeProperty)
+            where S : class, IEntity
+        {
+            internal override void ApplyAll(TRoot root, IList<T> items)
+            {
+                var dict = getCandidates(root)
+                    ?.Where(s => s.Id is not null)
+                    .ToDictionary(s => s.Id!) ?? [];
+                foreach (var item in items)
+                {
+                    var id = getId(item);
+                    if (id is not null && dict.TryGetValue(id, out var match))
+                        apply(item, match);
+                }
+            }
+        }
+
+        private sealed class ListSideloadDescriptor<S>(
+            Func<TRoot, IEnumerable<S>?> getCandidates,
+            Func<T, IEnumerable<string>?> getIds,
+            Action<T, S> append,
+            string includeProperty) : SideloadDescriptor(includeProperty)
+            where S : class, IEntity
+        {
+            internal override void ApplyAll(TRoot root, IList<T> items)
+            {
+                var dict = getCandidates(root)
+                    ?.Where(s => s.Id is not null)
+                    .ToDictionary(s => s.Id!) ?? [];
+                foreach (var item in items)
+                {
+                    var ids = getIds(item);
+                    if (ids is null) continue;
+                    foreach (var id in ids)
+                        if (dict.TryGetValue(id, out var match))
+                            append(item, match);
+                }
+            }
+        }
+
+        private readonly List<SideloadDescriptor> sideloads = [];
 
 
         protected Base(
@@ -25,8 +74,7 @@ namespace Billy.Api.Repositories
             string? key,
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
-            Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId)
+            Func<TRoot?, IList<T>?> rootToMultiple)
         {
             if (client is null && key is null)
                 throw new ArgumentNullException(nameof(client), "Either a client or a key must be provided");
@@ -44,15 +92,13 @@ namespace Billy.Api.Repositories
             this.requestUrl = requestUrl;
             this.rootToSingle = rootToSingle;
             this.rootToMultiple = rootToMultiple;
-            this.itemToId = itemToId;
         }
 
         public Base(
             RestClient client,
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
-            Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId) : this(client, null, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            Func<TRoot?, IList<T>?> rootToMultiple) : this(client, null, requestUrl, rootToSingle, rootToMultiple)
         {
         }
 
@@ -60,66 +106,68 @@ namespace Billy.Api.Repositories
             string key,
             string requestUrl,
             Func<TRoot?, T?> rootToSingle,
-            Func<TRoot?, IList<T>?> rootToMultiple,
-            Func<T?, string?> itemToId) : this(null, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+            Func<TRoot?, IList<T>?> rootToMultiple) : this(null, key, requestUrl, rootToSingle, rootToMultiple)
         {
         }
 
 
+        private static string DeriveIncludeProperty(string propertyName)
+        {
+            var model = typeof(T).Name;
+            return $"{char.ToLower(model[0])}{model[1..]}.{char.ToLower(propertyName[0])}{propertyName[1..]}";
+        }
+
         public void AddSideload<S>(Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
         {
+            AddSideload(itemProperty, DeriveIncludeProperty(itemProperty.GetPropertyName()));
+        }
+
+        public void AddSideload<S>(Expression<Func<T, S?>> itemProperty, string includeProperty) where S : class, IEntity, new()
+        {
             var listGetter = ReflectionExtensions.CreateListGetter<T, TRoot, S>(itemProperty);
-            AddSideload(listGetter, itemProperty);
+            AddSideload(listGetter, itemProperty, includeProperty);
         }
 
         /// <summary>
         /// Add a sideloaded object to the repository, which will be loaded when the main object is loaded.
         /// Expects the sideloaded object id to be available in the property [name]Id on the main object.
         /// </summary>
-        /// <typeparam name="S"></typeparam>
-        /// <param name="sideloadedObject"></param>
-        /// <param name="itemProperty"></param>
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
         {
-            var idGetter = ReflectionExtensions.CreateIdGetter(itemProperty);
-            AddSideload(sideloadedObject, itemProperty, idGetter);
+            AddSideload(sideloadedObject, itemProperty, DeriveIncludeProperty(itemProperty.GetPropertyName()));
         }
+
+        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, string includeProperty) where S : class, IEntity, new()
+        {
+            var idGetter = ReflectionExtensions.CreateSingleIdGetter(itemProperty);
+            AddSideload(sideloadedObject, itemProperty, idGetter, includeProperty);
+        }
+
+        /// <summary>
+        /// Add a sideloaded collection to the repository. Discovers the IDs property by singularizing
+        /// the collection property name and appending "Ids" (e.g. Lines → LineIds).
+        /// </summary>
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Expression<Func<T, IEnumerable<S>?>> itemsProperty) where S : class, IEntity, new()
         {
-            var idGetter = ReflectionExtensions.CreateIdGetter(itemsProperty);
-            var setter = ReflectionExtensions.GetCollectionAppender(itemsProperty);
-            AddListSideload(sideloadedObjects, setter, idGetter);
+            AddSideload(sideloadedObjects, itemsProperty, DeriveIncludeProperty(itemsProperty.GetPropertyName()));
         }
 
-        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, Func<T, string?> sideloadId) where S : class, IEntity, new()
+        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Expression<Func<T, IEnumerable<S>?>> itemsProperty, string includeProperty) where S : class, IEntity, new()
+        {
+            var idsGetter = ReflectionExtensions.CreateListIdGetter(itemsProperty);
+            var appender = ReflectionExtensions.GetCollectionAppender(itemsProperty);
+            sideloads.Add(new ListSideloadDescriptor<S>(sideloadedObjects, idsGetter, appender, includeProperty));
+        }
+
+        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, Func<T, string?> sideloadId, string includeProperty) where S : class, IEntity, new()
         {
             var setter = ReflectionExtensions.GetSetter(itemProperty);
-            AddSideload(sideloadedObject, setter, sideloadId);
+            AddSideload(sideloadedObject, setter, sideloadId, includeProperty);
         }
 
-        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Action<T, S> itemProperty, Func<T, string?> sideloadId) where S : class, IEntity, new()
+        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Action<T, S> setter, Func<T, string?> idGetter, string includeProperty) where S : class, IEntity, new()
         {
-            sideloads.Add(new Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>(sideloadedObjects, (b, i) =>
-            {
-                if (b is null || i is null)
-                    return;
-                else if (i is S s)
-                    itemProperty(b, s);
-                else
-                    throw new ArgumentOutOfRangeException(nameof(itemProperty), "The itemProperty must be of the same type as the sideloaded object");
-            }, sideloadId));
-        }
-        public void AddListSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Action<T, S> itemProperty, Func<T, IEnumerable<string>?> sideloadId) where S : class, IEntity, new()
-        {
-            sideloads.Add(new Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>(sideloadedObjects, (b, i) =>
-            {
-                if (b is null || i is null)
-                    return;
-                else if (i is S s)
-                    itemProperty(b, s);
-                else
-                    throw new ArgumentOutOfRangeException(nameof(itemProperty), "The itemProperty must be of the same type as the sideloaded object");
-            }, sideloadId));
+            sideloads.Add(new SingleSideloadDescriptor<S>(sideloadedObjects, idGetter, setter, includeProperty));
         }
 
         /// <summary>
@@ -135,19 +183,21 @@ namespace Billy.Api.Repositories
                 RequestFormat = DataFormat.Json
             };
 
+            request.AddIncludes(this.sideloads);
+
             var root = client.Get<TRoot>(request);
 
             if (root is null)
                 return null;
 
             var item = rootToSingle(root);
-            LoadSideloads(root, item);
+            ApplyAllSideloads(root, item is null ? [] : [item]);
 
             return item;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -159,13 +209,15 @@ namespace Billy.Api.Repositories
                 RequestFormat = DataFormat.Json
             };
 
+            request.AddIncludes(this.sideloads);
+
             var root = await client.GetAsync<TRoot>(request);
 
             if (root is null)
                 return null;
 
             var item = rootToSingle(root);
-            LoadSideloads(root, item);
+            ApplyAllSideloads(root, item is null ? [] : [item]);
 
             return item;
         }
@@ -208,6 +260,8 @@ namespace Billy.Api.Repositories
 
             request.RequestFormat = DataFormat.Json;
 
+            request.AddIncludes(this.sideloads);
+
             var root = client.Get<TRoot>(request);
 
             if (root is null)
@@ -217,15 +271,12 @@ namespace Billy.Api.Repositories
             if (items is null)
                 return null;
 
-            foreach (var item in items)
-            {
-                LoadSideloads(root, item);
-            }
+            ApplyAllSideloads(root, items);
             return items;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public Task<IList<T>?> ListAsync() => DoListAsync(null, null, SortOrder.ASC, null, null);
@@ -272,6 +323,8 @@ namespace Billy.Api.Repositories
 
             request.RequestFormat = DataFormat.Json;
 
+            request.AddIncludes(this.sideloads);
+
             var root = await client.GetAsync<TRoot>(request);
 
             if (root is null)
@@ -281,37 +334,17 @@ namespace Billy.Api.Repositories
             if (items is null)
                 return null;
 
-            foreach (var item in items)
-            {
-                LoadSideloads(root, item);
-            }
+            ApplyAllSideloads(root, items);
             return items;
         }
 
 
 
 
-        private void LoadSideloads(TRoot root, T? item)
+        private void ApplyAllSideloads(TRoot root, IList<T> items)
         {
-            if (root is null)
-                return;
-
-            if (item is null)
-                return;
-
-            foreach (var sideload in sideloads)
-            {
-                var sideloadItemId = sideload.Item3(item);
-                if (sideloadItemId is null)
-                    continue;
-
-                var sideloaded = sideload.Item1(root)?.FirstOrDefault((i) => i.Id == sideloadItemId);
-
-                if (sideloaded is null)
-                    continue;
-
-                sideload.Item2(item, sideloaded);
-            }
+            foreach (var descriptor in sideloads)
+                descriptor.ApplyAll(root, items);
         }
     }
 
@@ -322,18 +355,18 @@ namespace Billy.Api.Repositories
         protected readonly Func<T, TRoot> singleToRoot;
 
 
-        protected BaseWithCreate(RestClient? client, string? key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
-            base(client, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        protected BaseWithCreate(RestClient? client, string? key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T, TRoot> singleToRoot) :
+            base(client, key, requestUrl, rootToSingle, rootToMultiple)
         {
             this.singleToRoot = singleToRoot;
         }
-        protected BaseWithCreate(RestClient client, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
-            base(client, null, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        protected BaseWithCreate(RestClient client, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T, TRoot> singleToRoot) :
+            base(client, null, requestUrl, rootToSingle, rootToMultiple)
         {
             this.singleToRoot = singleToRoot;
         }
-        protected BaseWithCreate(string key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T?, string?> itemToId, Func<T, TRoot> singleToRoot) :
-            base(null, key, requestUrl, rootToSingle, rootToMultiple, itemToId)
+        protected BaseWithCreate(string key, string requestUrl, Func<TRoot?, T?> rootToSingle, Func<TRoot?, IList<T>?> rootToMultiple, Func<T, TRoot> singleToRoot) :
+            base(null, key, requestUrl, rootToSingle, rootToMultiple)
         {
             this.singleToRoot = singleToRoot;
         }
@@ -353,7 +386,7 @@ namespace Billy.Api.Repositories
             request.AddJsonBodyWithSharedOptions(singleToRoot(item));
 
             var result = client.Post<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
         /// <summary>
@@ -371,7 +404,7 @@ namespace Billy.Api.Repositories
             request.AddJsonBodyWithSharedOptions(singleToRoot(item));
 
             var result = await client.PostAsync<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
         /// <summary>
@@ -387,7 +420,7 @@ namespace Billy.Api.Repositories
             };
             request.AddJsonBodyWithSharedOptions(singleToRoot(item));
             var result = client.Put<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
         /// <summary>
@@ -403,7 +436,7 @@ namespace Billy.Api.Repositories
             };
             request.AddJsonBodyWithSharedOptions(singleToRoot(item));
             var result = await client.PutAsync<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
         /// <summary>
@@ -420,7 +453,7 @@ namespace Billy.Api.Repositories
             };
             request.AddUpdateBodyWithSharedOptions(item);
             var result = client.Put<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
         public async Task<string?> UpdateAsync(string id, DeltaObject<T> item)
@@ -431,7 +464,7 @@ namespace Billy.Api.Repositories
             };
             request.AddUpdateBodyWithSharedOptions(item);
             var result = await client.PutAsync<TRoot>(request);
-            return itemToId(rootToMultiple(result)?[0]);
+            return rootToMultiple(result)?[0].Id;
         }
 
     }

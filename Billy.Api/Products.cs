@@ -8,8 +8,7 @@ namespace Billy.Api
             client, key,
             "products/",
             (root) => root?.Product,
-            (root) => root?.Products,
-            (item) => item?.Id,
+            (root) => root?.Products
             (item) => new ProductRoot { Product = item },
             (root) => root?.Meta?.DeletedRecords?.Products?.FirstOrDefault()
             )

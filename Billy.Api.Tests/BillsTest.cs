@@ -97,6 +97,42 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
+        public void GetWithoutSideload_LinesIsNull()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                service.Delete(id);
+                Assert.IsNull(result?.Lines);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void GetWithSideload_LinesIsPopulated()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                service.SideloadLines();
+                var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                service.Delete(id);
+                Assert.IsNotNull(result?.Lines);
+                Assert.AreEqual(1, result.Lines.Count);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
         public void Update()
         {
             var contactId = CreateSupplierContact();

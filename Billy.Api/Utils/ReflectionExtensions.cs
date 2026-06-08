@@ -27,6 +27,15 @@ namespace Billy.Api.Utils
             return body.Member.Name;
         }
 
+        internal static string GetPropertyName<T, TProperty>(this Expression<Func<T, TProperty>> exp)
+        {
+            if (exp.Body is MemberExpression body)
+                return body.Member.Name;
+            if (exp.Body is UnaryExpression ubody && ubody.Operand is MemberExpression ubodyMember)
+                return ubodyMember.Member.Name;
+            throw new ArgumentException("Expression must be a member access", nameof(exp));
+        }
+
         // optionally or additionally put in a class<T> to capture the object type once
         // and then you don't have to repeat it if you have a lot of properties
         public static Action<T, TProperty?> GetSetter<T, TProperty>(this Expression<Func<T, TProperty?>> exp)
@@ -192,23 +201,33 @@ namespace Billy.Api.Utils
             ).Compile();
         }
 
-        public static Func<T, string> CreateIdGetter<T, TProperty>(this Expression<Func<T, TProperty>> expression)
+        public static Func<T, string?> CreateSingleIdGetter<T, TProperty>(this Expression<Func<T, TProperty?>> expression)
         {
             var memberExpression = (MemberExpression)expression.Body;
             var memberInfo = memberExpression.Member ?? throw new ArgumentException("The expression must be a member", nameof(expression));
 
-            // --- INSERT THIS CHECK HERE ---
-            // Checks if the property type is a collection (IEnumerable) but not a string
-            var propertyType = memberExpression.Type;
-            bool isCollection = typeof(System.Collections.IEnumerable).IsAssignableFrom(propertyType)
-                                && propertyType != typeof(string);
-
             var normalizedName = NormalizeMemberName(memberInfo.Name);
-            var propIdInfo = typeof(T).GetProperty($"{normalizedName}Id{(isCollection ? "s" : "")}")
-                ?? throw new ArgumentException($"No property '{normalizedName}Id{(isCollection ? "s" : "")}' found on type '{typeof(T).Name}'", nameof(expression));
+            var propIdInfo = typeof(T).GetProperty($"{normalizedName}Id")
+                ?? throw new ArgumentException($"No property '{normalizedName}Id' found on type '{typeof(T).Name}'", nameof(expression));
             var parameter = Expression.Parameter(typeof(T));
             var property = Expression.Property(parameter, propIdInfo);
-            var lambda = Expression.Lambda<Func<T, string>>(property, parameter);
+            var lambda = Expression.Lambda<Func<T, string?>>(property, parameter);
+
+            return lambda.Compile();
+        }
+
+        public static Func<T, IEnumerable<string>?> CreateListIdGetter<T, TItem>(this Expression<Func<T, IEnumerable<TItem>?>> expression)
+        {
+            var memberExpression = (MemberExpression)expression.Body;
+            var memberInfo = memberExpression.Member ?? throw new ArgumentException("The expression must be a member", nameof(expression));
+
+            var normalizedName = NormalizeMemberName(memberInfo.Name);
+            var singular = normalizedName.EndsWith('s') ? normalizedName[..^1] : normalizedName;
+            var propIdInfo = typeof(T).GetProperty($"{singular}Ids")
+                ?? throw new ArgumentException($"No property '{singular}Ids' found on type '{typeof(T).Name}'", nameof(expression));
+            var parameter = Expression.Parameter(typeof(T));
+            var property = Expression.Property(parameter, propIdInfo);
+            var lambda = Expression.Lambda<Func<T, IEnumerable<string>?>>(property, parameter);
 
             return lambda.Compile();
         }

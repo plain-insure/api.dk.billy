@@ -8,8 +8,7 @@ namespace Billy.Api
             client, key,
             "taxRates/",
             (root) => root?.TaxRate,
-            (root) => root?.TaxRates,
-            (item) => item?.Id
+            (root) => root?.TaxRates
             )
         { }
 

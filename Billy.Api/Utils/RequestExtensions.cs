@@ -2,6 +2,7 @@
 using Billy.Api.Models;
 using RestSharp;
 using System.Text.Json;
+using Billy.Api.Repositories;
 
 namespace Billy.Api.Utils
 {
@@ -34,6 +35,20 @@ namespace Billy.Api.Utils
             }
         }
 
+        internal static void AddIncludes<T, TRoot>(this RestRequest request, List<Base<T, TRoot>.SideloadDescriptor> sideloads)
+                                                            where T : class, IEntity
+                                                            where TRoot : class, new()
+        {
+
+            var includes = string.Join(",", sideloads
+                .Where(s => !string.IsNullOrEmpty(s.IncludeProperty))
+                .Select(s => s.IncludeProperty));
+
+            if (!string.IsNullOrEmpty(includes))
+            {
+                request.AddQueryParameter("include", includes);
+            }
+        }
         public static void AddFilter<T>(this RestRequest request, DeltaObject<T> filter) where T : class
         {
             if (filter != null)
