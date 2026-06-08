@@ -5,10 +5,7 @@ namespace Billy.Api
     public class TaxRates : Repositories.Base<TaxRate, TaxRateRoot>
     {
         private TaxRates(RestSharp.RestClient? client, string? key) : base(
-            client, key,
-            "taxRates/",
-            (root) => root?.TaxRate,
-            (root) => root?.TaxRates
+            client, key
             )
         { }
 

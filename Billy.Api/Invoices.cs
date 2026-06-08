@@ -5,25 +5,11 @@ namespace Billy.Api
     public class Invoices : Repositories.BaseWithDelete<Invoice, InvoiceRoot>
     {
         public Invoices(RestSharp.RestClient client) : base(
-            client,
-            "invoices/",
-            (root) => root.Invoice,
-            (root) => root.Invoices,
-            (item) => item.Id,
-            (item) => new InvoiceRoot { Invoice = item },
-                        (root) => root.Invoice?.Id
-            )
+            client)
         { }
 
         public Invoices(string key) : base(
-            key,
-            "invoices/",
-            (root) => root.Invoice,
-            (root) => root.Invoices,
-            (item) => item.Id,
-            (item) => new InvoiceRoot { Invoice = item },
-                        (root) => root.Invoice?.Id
-            )
+            key)
         { }
 
         public Invoice MostRecent(string contactId)

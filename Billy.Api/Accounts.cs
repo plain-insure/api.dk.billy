@@ -7,11 +7,7 @@ namespace Billy.Api
 
 
         private Accounts(RestSharp.RestClient? client, string? key) : base(
-            client, key,
-            "accounts/",
-            (root) => root?.Account,
-            (root) => root?.Accounts,
-            (item) => item?.Id
+            client, key
             )
         {
             AddSideload(r => r.AccountGroups, a => a.Group, "accounts.group"); // Same as:

@@ -5,10 +5,7 @@ namespace Billy.Api
     public class SalesTaxRulesets : Repositories.Base<SalesTaxRuleset, SalesTaxRulesetRoot>
     {
         private SalesTaxRulesets(RestSharp.RestClient? client, string? key) : base(
-            client, key,
-            "salesTaxRulesets/",
-            (root) => root?.SalesTaxRuleset,
-            (root) => root?.SalesTaxRulesets
+            client, key
             )
         { }
 

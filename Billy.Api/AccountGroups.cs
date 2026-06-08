@@ -5,11 +5,7 @@ namespace Billy.Api
     public class AccountGroups : Repositories.Base<AccountGroup, AccountGroupRoot>
     {
         private AccountGroups(RestSharp.RestClient? client, string? key) : base(
-            client, key,
-            "accountGroups/",
-            (root) => root?.AccountGroup,
-            (root) => root?.AccountGroups,
-            (item) => item?.Id
+            client, key
             )
         {
 

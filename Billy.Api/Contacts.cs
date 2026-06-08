@@ -4,13 +4,7 @@ using System.Diagnostics;
 namespace Billy.Api
 {
     public class Contacts(RestSharp.RestClient? client, string? key) : Repositories.BaseWithDelete<Contact, ContactRoot>(
-        client, key,
-        "contacts/",
-        (root) => root?.Contact,
-        (root) => root?.Contacts,
-        (item) => item?.Id,
-        (item) => new ContactRoot { Contact = item },
-        (root) => root?.Meta?.DeletedRecords?.Contacts?.FirstOrDefault()
+        client, key
             )
 
     {

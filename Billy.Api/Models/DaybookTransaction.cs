@@ -53,7 +53,7 @@ namespace Billy.Api.Models
         public string? PaidExternalInvoiceId { get; set; }
         public string? PaidBillId { get; set; }
         public string? ContraAccountId { get; set; }
-        public double Amount { get; set; }
+        public double? Amount { get; set; }
         public double? BaseAmount { get; set; }
         public string Side { get; set; }
         public string? CurrencyId { get; set; }
