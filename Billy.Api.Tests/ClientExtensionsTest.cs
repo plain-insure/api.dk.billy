@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Billy.Api.Models;
 using Billy.Api.Utils;
 using RestSharp;
 

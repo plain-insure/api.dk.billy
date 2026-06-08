@@ -54,6 +54,31 @@ namespace Billy.Api.Tests
             ]
         };
 
+
+        [TestMethod]
+        public void List()
+        {
+            var result = service.List();
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void CreateDelete()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var id = service.Create(BuildDraftBill(contactId));
+                service.Delete(id);
+                Assert.IsNotNull(id);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
         [TestMethod]
         public void Get()
         {
@@ -72,22 +97,24 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
-        public void List()
-        {
-            var result = service.List();
-
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
-        public void Create()
+        public void Update()
         {
             var contactId = CreateSupplierContact();
             try
             {
+                var dueDate = DateTime.Now.AddDays(30);
                 var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                result.DueDate = dueDate;
+                service.Update(result);
+                var updatedResult = service.Get(id);
+                Assert.IsNotNull(updatedResult);
+                Assert.AreEqual(dueDate.Date, updatedResult.DueDate.Date);
+
+
+
                 service.Delete(id);
-                Assert.IsNotNull(id);
+                Assert.AreEqual(id, result.Id);
             }
             finally
             {
@@ -95,20 +122,5 @@ namespace Billy.Api.Tests
             }
         }
 
-        [TestMethod]
-        public void Delete()
-        {
-            var contactId = CreateSupplierContact();
-            try
-            {
-                var id = service.Create(BuildDraftBill(contactId));
-                var result = service.Delete(id);
-                Assert.IsNotNull(result);
-            }
-            finally
-            {
-                DeleteContact(contactId);
-            }
-        }
     }
 }

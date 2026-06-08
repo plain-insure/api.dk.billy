@@ -13,7 +13,10 @@ namespace Billy.Api
             (item) => new BillRoot { Bill = item },
             (root) => root?.Meta?.DeletedRecords?.Bills?.FirstOrDefault()
             )
-        { }
+        {
+
+            this.AddSideload(r => r.BillLines, b => b.Lines);
+        }
 
         public Bills(string key) : base(
             key,

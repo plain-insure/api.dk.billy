@@ -67,9 +67,11 @@ namespace Billy.Api.Models
         public string? Subject { get; set; }
 
         public List<BillLine>? Lines { get; set; }
+
+        public List<string>? LineIds { get; set; }
     }
 
-    public class BillLine
+    public class BillLine : IEntity
     {
         public string? Id { get; set; }
         public string? BillId { get; set; }

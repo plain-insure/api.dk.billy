@@ -2,6 +2,7 @@
 using Billy.Api.Utils;
 using RestSharp;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace Billy.Api.Repositories
 {
@@ -83,6 +84,12 @@ namespace Billy.Api.Repositories
             var idGetter = ReflectionExtensions.CreateIdGetter(itemProperty);
             AddSideload(sideloadedObject, itemProperty, idGetter);
         }
+        public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Expression<Func<T, IEnumerable<S>?>> itemsProperty) where S : class, IEntity, new()
+        {
+            var idGetter = ReflectionExtensions.CreateIdGetter(itemsProperty);
+            var setter = ReflectionExtensions.GetCollectionAppender(itemsProperty);
+            AddListSideload(sideloadedObjects, setter, idGetter);
+        }
 
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, Func<T, string?> sideloadId) where S : class, IEntity, new()
         {
@@ -91,6 +98,18 @@ namespace Billy.Api.Repositories
         }
 
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Action<T, S> itemProperty, Func<T, string?> sideloadId) where S : class, IEntity, new()
+        {
+            sideloads.Add(new Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>(sideloadedObjects, (b, i) =>
+            {
+                if (b is null || i is null)
+                    return;
+                else if (i is S s)
+                    itemProperty(b, s);
+                else
+                    throw new ArgumentOutOfRangeException(nameof(itemProperty), "The itemProperty must be of the same type as the sideloaded object");
+            }, sideloadId));
+        }
+        public void AddListSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Action<T, S> itemProperty, Func<T, IEnumerable<string>?> sideloadId) where S : class, IEntity, new()
         {
             sideloads.Add(new Tuple<Func<TRoot, IEnumerable<IEntity>?>, Action<T?, IEntity>, Func<T, string?>>(sideloadedObjects, (b, i) =>
             {
@@ -209,7 +228,7 @@ namespace Billy.Api.Repositories
         /// 
         /// </summary>
         /// <returns></returns>
-        public Task<IList<T>?> ListAsync() => ListAsync(null, null, SortOrder.ASC, null, null);
+        public Task<IList<T>?> ListAsync() => DoListAsync(null, null, SortOrder.ASC, null, null);
 
         public Task<IList<T>?> ListAsync(object filter) => ListAsync(filter, null, SortOrder.ASC, null, null);
 
@@ -225,19 +244,29 @@ namespace Billy.Api.Repositories
         /// <param name="sortProperty">The sort property.</param>
         /// <param name="sortOrder">The sort order.</param>
         /// <returns></returns>
-        public Task<IList<T>?> ListAsync(Expression<Func<T, object>> sortProperty, SortOrder sortOrder) => ListAsync(null, sortProperty.GetName(), sortOrder, null, null);
+        public Task<IList<T>?> ListAsync(Expression<Func<T, object>> sortProperty, SortOrder sortOrder) => DoListAsync(filterDict: null, sortProperty.GetName(), sortOrder, null, null);
+
+        public Task<IList<T>?> ListAsync(DeltaObject<T>? filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder) => ListAsync(filter, sortProperty.GetName(), sortOrder, null, null);
+
+        public Task<IList<T>?> ListAsync(DeltaObject<T>? filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize) => ListAsync(filter, sortProperty.GetName(), sortOrder, null, pageSize);
 
         public Task<IList<T>?> ListAsync(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder) => ListAsync(filter, sortProperty.GetName(), sortOrder, null, null);
 
         public Task<IList<T>?> ListAsync(object filter, Expression<Func<T, object>> sortProperty, SortOrder sortOrder, int pageSize) => ListAsync(filter, sortProperty.GetName(), sortOrder, null, pageSize);
 
-        public async Task<IList<T>?> ListAsync(object? filter, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize)
+        public Task<IList<T>?> ListAsync(object? filter, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize) => DoListAsync(filter?.AsDictionary(), sortProperty, sortOrder, page, pageSize);
+
+        public Task<IList<T>?> ListAsync(DeltaObject<T>? filter, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize) => DoListAsync(filter?.GetModifications(), sortProperty, sortOrder, page, pageSize);
+
+        public Task<IList<T>?> ListAsync(IDictionary<string, object?>? filterDict, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize) => DoListAsync(filterDict, sortProperty, sortOrder, page, pageSize);
+
+        private async Task<IList<T>?> DoListAsync(IDictionary<string, object?>? filterDict, string? sortProperty, SortOrder sortOrder, int? page, int? pageSize)
         {
             var request = new RestRequest(requestUrl, Method.Get);
             if (sortProperty != null)
                 request.AddSorting(sortProperty, sortOrder);
-            if (filter != null)
-                request.AddFilter(filter);
+            if (filterDict != null)
+                request.AddFilter(filterDict: filterDict);
             if (page != null && pageSize != null)
                 request.AddPaging(page, pageSize);
 
@@ -310,7 +339,7 @@ namespace Billy.Api.Repositories
         }
 
         /// <summary>
-        /// 
+        /// Creates a new item.
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -328,7 +357,7 @@ namespace Billy.Api.Repositories
         }
 
         /// <summary>
-        /// 
+        /// Creates a new item using asynchronous operations.
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -345,6 +374,65 @@ namespace Billy.Api.Repositories
             return itemToId(rootToMultiple(result)?[0]);
         }
 
+        /// <summary>
+        /// Updates an existing item. The item must have a valid Id property, which is used to identify the item to update.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string? Update(T item)
+        {
+            var request = new RestRequest(requestUrl + item.Id, Method.Put)
+            {
+                RequestFormat = DataFormat.Json
+            };
+            request.AddJsonBodyWithSharedOptions(singleToRoot(item));
+            var result = client.Put<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
+
+        /// <summary>
+        /// Updates an existing item using asynchronous operations. The item must have a valid Id property, which is used to identify the item to update.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public async Task<string?> UpdateAsync(T item)
+        {
+            var request = new RestRequest(requestUrl + item.Id, Method.Put)
+            {
+                RequestFormat = DataFormat.Json
+            };
+            request.AddJsonBodyWithSharedOptions(singleToRoot(item));
+            var result = await client.PutAsync<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
+
+        /// <summary>
+        /// Updates an existing item. The item must have a valid Id property, which is used to identify the item to update.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string? Update(string id, DeltaObject<T> item)
+        {
+            var request = new RestRequest(requestUrl + id, Method.Put)
+            {
+                RequestFormat = DataFormat.Json
+            };
+            request.AddUpdateBodyWithSharedOptions(item);
+            var result = client.Put<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
+
+        public async Task<string?> UpdateAsync(string id, DeltaObject<T> item)
+        {
+            var request = new RestRequest(requestUrl + id, Method.Put)
+            {
+                RequestFormat = DataFormat.Json
+            };
+            request.AddUpdateBodyWithSharedOptions(item);
+            var result = await client.PutAsync<TRoot>(request);
+            return itemToId(rootToMultiple(result)?[0]);
+        }
 
     }
 }
