@@ -32,13 +32,29 @@ namespace Billy.Api.Tests
                 ?.FirstOrDefault(t => t.AppliesToPurchases && t.IsActive)?.Id
                 ?? throw new InvalidOperationException("No active purchase tax rate found in the organisation");
 
-            customerContactId = new Contacts(Client).List(new { isCustomer = true })
-                ?.FirstOrDefault()?.Id
-                ?? throw new InvalidOperationException("No customer contact found in the organisation");
+            var contacts = new Contacts(Client);
 
-            supplierContactId = new Contacts(Client).List(new { isSupplier = true })
-                ?.FirstOrDefault()?.Id
-                ?? throw new InvalidOperationException("No supplier contact found in the organisation");
+            customerContactId = contacts.List(new { isCustomer = true })?.FirstOrDefault()?.Id
+                ?? contacts.Create(new Contact
+                {
+                    Type = "company",
+                    OrganizationId = OrganizationId,
+                    Name = "Test Customer",
+                    CountryId = Countries.DK.ToString(),
+                    IsCustomer = true
+                })
+                ?? throw new InvalidOperationException("Failed to find or create a customer contact");
+
+            supplierContactId = contacts.List(new { isSupplier = true })?.FirstOrDefault()?.Id
+                ?? contacts.Create(new Contact
+                {
+                    Type = "company",
+                    OrganizationId = OrganizationId,
+                    Name = "Test Supplier",
+                    CountryId = Countries.DK.ToString(),
+                    IsSupplier = true
+                })
+                ?? throw new InvalidOperationException("Failed to find or create a supplier contact");
 
             productId = new Products(Client).List()
                 ?.FirstOrDefault()?.Id
