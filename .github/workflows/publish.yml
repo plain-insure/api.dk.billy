@@ -129,7 +129,7 @@ jobs:
       - name: Upload NuGet package to GitHub release
         run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              gh release upload "${{ github.event.release.tag_name }}" $file --clobber
+              gh release upload "${{ github.event.release.tag_name }}" $file --clobber --repo "${{ github.repository }}"
           }
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
