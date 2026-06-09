@@ -133,7 +133,7 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
-        public void Update()
+        public void UpdateOriginal()
         {
             var contactId = CreateSupplierContact();
             try
@@ -151,6 +151,70 @@ namespace Billy.Api.Tests
 
                 service.Delete(id);
                 Assert.AreEqual(id, result.Id);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+
+        public void UpdateDictionary()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var dueDate = DateTime.Now.AddDays(30);
+                var bill = BuildDraftBill(contactId);
+                var id = service.Create(bill);
+                
+                var updateDict = new Dictionary<string, object>
+                {
+                    { nameof(Bill.SuppliersInvoiceNo), "testNO" }
+                };
+
+                //service.Update(id, updateDict);
+
+                var updatedResult = service.Get(id);
+                Assert.IsNotNull(updatedResult);
+                Assert.AreEqual("testNO", updatedResult.SuppliersInvoiceNo);
+
+
+
+                var deletedId = service.Delete(id);
+                Assert.AreEqual(deletedId, updatedResult.Id);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void UpdateDelta()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var dueDate = DateTime.Now.AddDays(30);
+                var bill = BuildDraftBill(contactId);
+                var id = service.Create(bill);
+
+
+                var updateDelta = new DeltaObject<Bill>();
+
+                updateDelta.Set(b => b.SuppliersInvoiceNo, "testNO");
+
+                service.Update(id, updateDelta);
+
+                var updatedResult = service.Get(id);
+                Assert.IsNotNull(updatedResult);
+                Assert.AreEqual("testNO", updatedResult.SuppliersInvoiceNo);
+
+
+
+                var deletedId = service.Delete(id);
+                Assert.AreEqual(deletedId, updatedResult.Id);
             }
             finally
             {

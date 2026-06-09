@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Billy.Api
 {
@@ -55,7 +56,7 @@ namespace Billy.Api
             }
 
             // Store the property name and the new value (can be null)
-            _modifications[propertyInfo.Name] = value;
+            _modifications[JsonNamingPolicy.CamelCase.ConvertName(propertyInfo.Name)] = value;
             return this;
         }
 
