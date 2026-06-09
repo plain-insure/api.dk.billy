@@ -4,14 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Title>Billy Service</Title>
+    <Title>Billy API</Title>
     <Company>Plain</Company>
-    <Description>A C# implementation of the Billy API</Description>
+    <Description>Strongly-typed .NET 8 client for the Billy REST API (billy.dk). Supports Bills, Invoices, Contacts, Products, Accounts, Daybooks, BankPayments, and more. Features convention-driven CRUD repositories, partial updates via DeltaObject&lt;T&gt;, opt-in sideloading of related objects, and flexible filtering, sorting, and paging. Extensible: add unlisted Billy endpoints or custom helpers from your own project without modifying this library.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/plain-insure/api.dk.billy</PackageProjectUrl>
     <RepositoryUrl>https://github.com/plain-insure/api.dk.billy</RepositoryUrl>
-    <PackageTags>billy, api, accounting</PackageTags>
-    <PackageReleaseNotes>Refactored fork of Billy Service to .Net 8 and cleaning.</PackageReleaseNotes>
+    <PackageTags>billy;billing;api;accounting;denmark;dk;invoices;bills;contacts;dotnet</PackageTags>
+    <PackageReleaseNotes>Convention-driven .NET 8 repository layer over the Billy REST API. Partial updates via DeltaObject&lt;T&gt;, opt-in sideloading, filtering, sorting, and paging. Repositories are fully extensible from consumer projects.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -20,7 +20,7 @@
 	  <NoWarn>$(NoWarn);CS1591</NoWarn>
 	  <Authors>Plain, Peter</Authors>
 	  <PackageIcon>billy.png</PackageIcon>
-	  <Version>4.0.2</Version>
+	  <Version>4.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
