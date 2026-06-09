@@ -1,6 +1,7 @@
 using Billy.Api.Models;
 using Billy.Api.Utils;
 using RestSharp;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -206,7 +207,7 @@ namespace Billy.Api.Repositories
         /// Any registered sideloads are requested and applied automatically.
         /// </summary>
         /// <param name="id">The unique ID of the resource to retrieve.</param>
-        /// <returns>The entity, or <c>null</c> if not found.</returns>
+        /// <returns>The entity, or <c>null</c> if not found.</returns>        
         public T? Get(string id)
         {
             var request = new RestRequest(RequestUrl + id, Method.Get)
