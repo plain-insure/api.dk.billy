@@ -1,4 +1,4 @@
-﻿using Billy.Api.Utils;
+using Billy.Api.Utils;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -7,7 +7,25 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api
 {
-
+    /// <summary>
+    /// Tracks a set of explicitly assigned property changes for a partial PUT request.
+    /// Only the properties you call <see cref="Set{TProperty}"/> on are included in the request body,
+    /// so unset properties are never overwritten on the server.
+    /// <para>
+    /// A <see cref="DeltaObject{T}"/> can also be passed as a filter to <c>ListAsync</c> — only its
+    /// tracked modifications are sent as query parameters.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="T">The entity type whose properties are being tracked.</typeparam>
+    /// <example>
+    /// <code>
+    /// var delta = new DeltaObject&lt;Bill&gt;()
+    ///     .Set(b => b.State, BillStates.approved)
+    ///     .Set(b => b.DueDate, DateTime.Today.AddDays(30));
+    ///
+    /// await bills.UpdateAsync(id, delta);
+    /// </code>
+    /// </example>
     public class DeltaObject<T> where T : class
     {
         // Tracks the property name and the explicitly assigned value
@@ -29,8 +47,16 @@ namespace Billy.Api
                 return opts;
             });
 
+        /// <summary>Initializes an empty delta with no tracked changes.</summary>
         public DeltaObject() { }
 
+        /// <summary>
+        /// Initializes a delta pre-populated with one or more property updates expressed as tuples.
+        /// </summary>
+        /// <param name="updates">
+        /// Property updates using implicit tuple syntax:
+        /// <c>new DeltaObject&lt;Bill&gt;((b => b.State, BillStates.approved))</c>.
+        /// </param>
         public DeltaObject(params PropertyUpdate<T>[] updates)
         {
 
@@ -40,6 +66,11 @@ namespace Billy.Api
             }
         }
 
+        /// <summary>
+        /// Adds a property update from a <see cref="PropertyUpdate{TEntity}"/> (tuple) value.
+        /// </summary>
+        /// <param name="update">The property update to record.</param>
+        /// <returns>This instance, enabling fluent chaining.</returns>
         public DeltaObject<T> Add(PropertyUpdate<T> update)
         {
             ArgumentNullException.ThrowIfNull(update);
@@ -50,8 +81,13 @@ namespace Billy.Api
         }
 
         /// <summary>
-        /// Safely queues a property update with strict compile-time type checking.
+        /// Records an update for a single property with compile-time type safety.
+        /// Calling this method multiple times for the same property overwrites the previous value.
         /// </summary>
+        /// <typeparam name="TProperty">Type of the property being set.</typeparam>
+        /// <param name="propertyExpression">Expression selecting the property to update.</param>
+        /// <param name="value">New value to send in the PUT request.</param>
+        /// <returns>This instance, enabling fluent chaining.</returns>
         public DeltaObject<T> Set<TProperty>(Expression<Func<T, TProperty>> propertyExpression, TProperty value)
         {
             ArgumentNullException.ThrowIfNull(propertyExpression);
@@ -106,7 +142,7 @@ namespace Billy.Api
         }
 
         /// <summary>
-        /// Returns a list of property names that were modified. Useful for EF Core tracking or logging.
+        /// Returns the camelCase names of all properties that have been set on this delta.
         /// </summary>
         public IEnumerable<string> GetChangedProperties() => _modifications.Keys;
 
@@ -121,9 +157,17 @@ namespace Billy.Api
     }
 
 
+    /// <summary>
+    /// Pairs a property selector expression with a new value, used to populate a
+    /// <see cref="DeltaObject{TEntity}"/> via the tuple constructor syntax.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type the property belongs to.</typeparam>
     public class PropertyUpdate<TEntity> where TEntity : class
     {
+        /// <summary>Lambda expression that selects the property to update.</summary>
         public LambdaExpression Expression { get; }
+
+        /// <summary>New value to assign to the property.</summary>
         public object? Value { get; }
 
         // Private constructor forces usage via the clean tuple syntax
@@ -133,15 +177,22 @@ namespace Billy.Api
             Value = value;
         }
 
-        // This implicit operator converts (Expression, Value) tuples into PropertyUpdate objects automatically
+        /// <summary>
+        /// Converts a <c>(Expression, Value)</c> tuple into a <see cref="PropertyUpdate{TEntity}"/>.
+        /// Enables the concise tuple syntax: <c>(e => e.Prop, value)</c>.
+        /// </summary>
         public static implicit operator PropertyUpdate<TEntity>((Expression<Func<TEntity, object?>> Expr, object? Val) tuple)
         {
             return new PropertyUpdate<TEntity>(tuple.Expr, tuple.Val);
         }
 
-        // Overload to handle strongly typed value types (like int, bool, DateTime) without manual boxing
+        /// <summary>Overload for strongly-typed <c>string?</c> values without manual boxing.</summary>
         public static implicit operator PropertyUpdate<TEntity>((Expression<Func<TEntity, string?>> Expr, string? Val) tuple) => new(tuple.Expr, tuple.Val);
+
+        /// <summary>Overload for strongly-typed <c>int</c> values without manual boxing.</summary>
         public static implicit operator PropertyUpdate<TEntity>((Expression<Func<TEntity, int>> Expr, int Val) tuple) => new(tuple.Expr, tuple.Val);
+
+        /// <summary>Overload for strongly-typed <c>bool</c> values without manual boxing.</summary>
         public static implicit operator PropertyUpdate<TEntity>((Expression<Func<TEntity, bool>> Expr, bool Val) tuple) => new(tuple.Expr, tuple.Val);
     }
 }

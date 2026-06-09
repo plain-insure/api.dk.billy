@@ -4,7 +4,8 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Peter\\\\source\\\\GitHub\\\\api.dk.billy\" -Recurse -Depth 2)",
       "Bash(Select-Object FullName)",
       "PowerShell(Head -80)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "WebFetch(domain:www.billy.dk)"
     ]
   },
   "hooks": {
@@ -14,9 +15,9 @@
         "hooks": [
           {
             "type": "command",
+            "command": "$d=$input|ConvertFrom-Json;$fp=$d.tool_input.file_path;if($fp -like '*\\Billy.Api\\*.cs' -and $fp -notlike '*\\obj\\*' -and $fp -notlike '*\\Utils\\*' -and $fp -notlike '*\\Converters\\*' -and $fp -notlike '*\\Repositories\\*'){Write-Output '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"REMINDER: You edited a Billy API resource file. If this change adds, removes, or modifies CRUD capabilities for any resource (e.g. adding a new repository class or changing its base class), update the feature matrix table in README.md.\"}}'}",
             "shell": "powershell",
-            "timeout": 5,
-            "command": "$d=$input|ConvertFrom-Json;$fp=$d.tool_input.file_path;if($fp -like '*\\Billy.Api\\*.cs' -and $fp -notlike '*\\obj\\*' -and $fp -notlike '*\\Utils\\*' -and $fp -notlike '*\\Converters\\*' -and $fp -notlike '*\\Repositories\\*'){Write-Output '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"REMINDER: You edited a Billy API resource file. If this change adds, removes, or modifies CRUD capabilities for any resource (e.g. adding a new repository class or changing its base class), update the feature matrix table in README.md.\"}}'}"
+            "timeout": 5
           }
         ]
       }
