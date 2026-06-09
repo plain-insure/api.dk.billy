@@ -14,7 +14,7 @@ install-package BillyService
 
 | Resource | Get | List | Create | Update | Delete |
 |---|:---:|:---:|:---:|:---:|:---:|
-| BankPayments | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BankPayments* | ✓ | ✓ | ✓ | ✓ | |
 | Bills | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Invoices | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Contacts | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -26,6 +26,8 @@ install-package BillyService
 | Organizations | ✓ | ✓ | | | |
 | TaxRates | ✓ | ✓ | | | |
 | SalesTaxRulesets | ✓ | ✓ | | | |
+
+\* The [Billy API docs](https://www.billy.dk/api/#v2banklinematches) list delete and bulk delete for `bankPayments`, but these endpoints do not appear to work in practice.
 
 ## Quick start
 

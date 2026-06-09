@@ -19,6 +19,7 @@ namespace Billy.Api.Actions
                 CashAmount = amount ?? (double)invoice.Balance,
                 CashSide = CashSide.debit,
                 CashAccountId = cashAccount.Id,
+                SubjectCurrencyId = invoice.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"invoice:{invoice.Id}" }]
             });
 
@@ -37,6 +38,7 @@ namespace Billy.Api.Actions
                 CashAmount = amount ?? (double)invoice.Balance,
                 CashSide = CashSide.debit,
                 CashAccountId = cashAccount.Id,
+                SubjectCurrencyId = invoice.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"invoice:{invoice.Id}" }]
             });
 
@@ -55,6 +57,7 @@ namespace Billy.Api.Actions
                 CashAmount = amount ?? (double)bill.Balance,
                 CashSide = CashSide.credit,
                 CashAccountId = cashAccount.Id,
+                SubjectCurrencyId = bill.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"bill:{bill.Id}" }]
             });
 
@@ -73,6 +76,7 @@ namespace Billy.Api.Actions
                 CashAmount = amount ?? (double)bill.Balance,
                 CashSide = CashSide.credit,
                 CashAccountId = cashAccount.Id,
+                SubjectCurrencyId = bill.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"bill:{bill.Id}" }]
             });
     }

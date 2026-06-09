@@ -13,7 +13,7 @@ namespace Billy.Api.Utils
         {
 
             var updatesJson = JsonSerializer.Serialize(updates.GetSerializedModifications(), RestJsonOptions.Instance);
-            var root = "{\"" + typeof(T).Name.ToLowerInvariant() + "\": " + updatesJson + "}"; //Manually build this
+            var root = "{\"" + JsonNamingPolicy.CamelCase.ConvertName(typeof(T).Name) + "\": " + updatesJson + "}";
             request.AddStringBody(root, DataFormat.Json);
             return request;
         }

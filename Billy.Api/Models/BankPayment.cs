@@ -34,7 +34,7 @@ namespace Billy.Api.Models
         public DateTime EntryDate { get; set; }
 
         public double CashAmount { get; set; }
-        public CashSide CashSide { get; set; }
+        public CashSide? CashSide { get; set; }
         public string CashAccountId { get; set; }
         public double? CashExchangeRate { get; set; }
         public string? SubjectCurrencyId { get; set; }

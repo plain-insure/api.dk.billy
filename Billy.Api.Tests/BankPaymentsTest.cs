@@ -8,36 +8,27 @@ namespace Billy.Api.Tests
     {
         public override BankPayments CreateService(RestClient client) => new(client);
 
-        private string cashAccountId = default!;
+        private Account cashAccount = default!;
         private string contactId = default!;
+        private string? existingPaymentId;
+        private string? existingNonVoidedPaymentId;
 
         [TestInitialize]
         public void InitializeTestData()
         {
-            cashAccountId = new Accounts(Client).List()
-                ?.FirstOrDefault(a => a.IsPaymentEnabled)?.Id
+            cashAccount = new Accounts(Client).List()
+                ?.FirstOrDefault(a => a.IsPaymentEnabled)
                 ?? throw new InvalidOperationException("No payment-enabled account found");
 
-            contactId = new Contacts(Client).Create(new Contact
-            {
-                Type = "company",
-                OrganizationId = OrganizationId,
-                Name = "Test Payment Contact",
-                CountryId = Countries.DK.ToString(),
-                Street = "",
-                ZipcodeText = "",
-                CityText = "",
-                Phone = "",
-                IsCustomer = true,
-                IsSupplier = false
-            }) ?? throw new InvalidOperationException("Failed to create contact");
-        }
+            contactId = new Contacts(Client).List()
+                ?.FirstOrDefault()?.Id
+                ?? throw new InvalidOperationException("No contacts found in the organisation");
 
-        [TestCleanup]
-        public void CleanupTestData()
-        {
-            if (contactId != null)
-                new Contacts(Client).Delete(contactId);
+            existingPaymentId = service.List(new { organizationId = OrganizationId })
+                ?.FirstOrDefault()?.Id;
+
+            existingNonVoidedPaymentId = service.List(new { organizationId = OrganizationId, isVoided = false })
+                ?.FirstOrDefault()?.Id;
         }
 
         private BankPayment BuildPayment() => new()
@@ -47,7 +38,8 @@ namespace Billy.Api.Tests
             EntryDate = DateTime.Today,
             CashAmount = 1.00,
             CashSide = CashSide.debit,
-            CashAccountId = cashAccountId
+            CashAccountId = cashAccount.Id,
+            SubjectCurrencyId = cashAccount.CurrencyId
         };
 
         private void VoidPayment(string id) =>
@@ -77,7 +69,8 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Get()
         {
-            var id = service.Create(BuildPayment());
+            var created = existingPaymentId == null;
+            var id = existingPaymentId ?? service.Create(BuildPayment());
             try
             {
                 var result = service.Get(id);
@@ -85,16 +78,17 @@ namespace Billy.Api.Tests
             }
             finally
             {
-                VoidPayment(id);
+                if (created) VoidPayment(id);
             }
         }
 
         // ── Void (only mutable field after creation) ─────────────────────────────
+        // Also exercises isVoided=false filtering via InitializeTestData lookup
 
         [TestMethod]
         public void Void()
         {
-            var id = service.Create(BuildPayment());
+            var id = existingNonVoidedPaymentId ?? service.Create(BuildPayment());
 
             service.Update(id, new DeltaObject<BankPayment>().Set(p => p.IsVoided, true));
 

@@ -2,7 +2,7 @@ using Billy.Api.Models;
 
 namespace Billy.Api
 {
-    public class BankPayments : Repositories.BaseWithDelete<BankPayment, BankPaymentRoot>
+    public class BankPayments : Repositories.BaseWithCreate<BankPayment, BankPaymentRoot>
     {
         public BankPayments(RestSharp.RestClient client) : base(client) { }
 
