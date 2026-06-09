@@ -50,11 +50,12 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Get()
         {
-            var id = service.Create(BuildDraftTransaction());
+            var id = service.Create(BuildDraftTransaction())?.Id;
+            Assert.IsNotNull(id);
             try
             {
                 var result = service.Get(id);
-                Assert.AreEqual(id, result.Id);
+                Assert.AreEqual(id, result?.Id);
             }
             finally
             {
@@ -70,19 +71,13 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
-        public void Create()
+        public void CreateDelete()
         {
-            var id = service.Create(BuildDraftTransaction());
+            var id = service.Create(BuildDraftTransaction())?.Id;
+            Assert.IsNotNull(id);
             service.Delete(id);
             Assert.IsNotNull(id);
         }
 
-        [TestMethod]
-        public void Delete()
-        {
-            var id = service.Create(BuildDraftTransaction());
-            var result = service.Delete(id);
-            Assert.IsNotNull(result);
-        }
     }
 }

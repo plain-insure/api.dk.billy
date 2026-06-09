@@ -10,12 +10,7 @@ namespace Billy.Api.Models
         credit
     }
 
-    public class BankPaymentIdList
-    {
-        public List<string>? BankPayments { get; set; }
-    }
-
-    public class BankPaymentRoot : Root<BankPaymentIdList>
+    public class BankPaymentRoot : Root
     {
         public BankPayment? BankPayment { get; set; }
         public List<BankPayment>? BankPayments { get; set; }

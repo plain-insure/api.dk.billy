@@ -4,13 +4,7 @@ using System.Text.Json.Serialization;
 namespace Billy.Api.Models
 {
 
-    public class InvoiceIdList
-    {
-        public List<string>? Invoices { get; set; }
-
-    }
-
-    public class InvoiceRoot : Root<InvoiceIdList>
+    public class InvoiceRoot : Root
     {
         public Invoice Invoice { get; set; }
         public List<Invoice> Invoices { get; set; }

@@ -3,12 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api.Models
 {
-    public class DaybookTransactionIdList
-    {
-        public List<string>? DaybookTransactions { get; set; }
-    }
 
-    public class DaybookTransactionRoot : Root<DaybookTransactionIdList>
+    public class DaybookTransactionRoot : Root
     {
         public DaybookTransaction? DaybookTransaction { get; set; }
         public List<DaybookTransaction>? DaybookTransactions { get; set; }

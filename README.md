@@ -133,8 +133,7 @@ Every repository in this library is simply a class that inherits one of three ba
 
 ```csharp
 // Your model
-public class BankPaymentIdList { public List<string>? BankPayments { get; set; } }
-public class BankPaymentRoot : Root<BankPaymentIdList>
+public class BankPaymentRoot : Root
 {
     public BankPayment? BankPayment { get; set; }
     public List<BankPayment>? BankPayments { get; set; }

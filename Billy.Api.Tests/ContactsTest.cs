@@ -38,13 +38,15 @@ namespace Billy.Api.Tests
                 }
             });
 
-            // Act
-            var result = service.Get(create);
+            Assert.IsNotNull(create?.Id);
 
-            var deleteResult = service.Delete(create);
+            // Act
+            var result = service.Get(create.Id);
+
+            var deleteResult = service.Delete(create.Id);
 
             // Assert
-            Assert.AreEqual(create, result.Id);
+            Assert.AreEqual(create.Id, result?.Id);
         }
 
         [TestMethod]
@@ -75,8 +77,9 @@ namespace Billy.Api.Tests
                 IsCustomer = true,
                 IsSupplier = false
             });
+            Assert.IsNotNull(result?.Id);
 
-            var deleteResult = service.Delete(result);
+            var deleteResult = service.Delete(result.Id);
 
             // Assert
             Assert.IsNotNull(result);
@@ -109,8 +112,10 @@ namespace Billy.Api.Tests
                 }
             });
 
+            Assert.IsNotNull(create?.Id);
+
             // Act
-            var result = service.Delete(create);
+            var result = service.Delete(create.Id);
 
             // Assert
             Assert.IsNotNull(result);

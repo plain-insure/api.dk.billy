@@ -1,11 +1,6 @@
 namespace Billy.Api.Models
 {
-    public class TaxRateIdList
-    {
-        public List<string>? TaxRates { get; set; }
-    }
-
-    public class TaxRateRoot : Root<TaxRateIdList>
+    public class TaxRateRoot : Root
     {
         public TaxRate? TaxRate { get; set; }
         public List<TaxRate>? TaxRates { get; set; }

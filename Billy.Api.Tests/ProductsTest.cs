@@ -29,7 +29,8 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Get()
         {
-            var id = service.Create(BuildTestProduct("Test Get Product"));
+            var id = service.Create(BuildTestProduct("Test Get Product"))?.Id;
+            Assert.IsNotNull(id);
 
             var result = service.Get(id);
 
@@ -47,19 +48,10 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
-        public void Create()
+        public void CreateDelete()
         {
-            var id = service.Create(BuildTestProduct("Test Create Product"));
-
-            service.Delete(id);
-
+            var id = service.Create(BuildTestProduct("Test Delete Product"))?.Id;
             Assert.IsNotNull(id);
-        }
-
-        [TestMethod]
-        public void Delete()
-        {
-            var id = service.Create(BuildTestProduct("Test Delete Product"));
 
             var result = service.Delete(id);
 

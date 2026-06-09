@@ -31,7 +31,7 @@ namespace Billy.Api.Tests
                 Phone = "",
                 IsCustomer = false,
                 IsSupplier = true
-            }) ?? throw new InvalidOperationException("Failed to create supplier contact");
+            })?.Id ?? throw new InvalidOperationException("Failed to create supplier contact");
 
         private void DeleteContact(string contactId) =>
             new Contacts(Client).Delete(contactId);
@@ -73,9 +73,27 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 service.Delete(id);
                 Assert.IsNotNull(id);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void BulkDelete()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var id1 = service.Create(BuildDraftBill(contactId))?.Id!;
+                var id2 = service.Create(BuildDraftBill(contactId))?.Id!;
+                var deleted = service.DeleteBulk([id1, id2]);
+                Assert.HasCount(2, deleted);
+                CollectionAssert.AreEquivalent(new[] { id1, id2 }, deleted.ToArray());
             }
             finally
             {
@@ -91,7 +109,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 service.Delete(id);
                 Assert.AreEqual(id, result.Id);
@@ -108,7 +126,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 service.Delete(id);
                 Assert.IsNull(result?.Lines);
@@ -126,7 +144,7 @@ namespace Billy.Api.Tests
             try
             {
                 service.SideloadLines();
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 service.Delete(id);
                 Assert.IsNotNull(result?.Lines);
@@ -146,7 +164,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.SuppliersInvoiceNo = "INV-001";
                 service.Update(result);
@@ -171,7 +189,7 @@ namespace Billy.Api.Tests
             try
             {
                 var dueDate = DateTime.Now.AddDays(30);
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.DueDate = dueDate;
                 service.Update(result);
@@ -195,7 +213,7 @@ namespace Billy.Api.Tests
             try
             {
                 var dueDate = DateTime.Now.AddDays(45);
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.SuppliersInvoiceNo = "INV-MULTI";
                 result.DueDate = dueDate;
@@ -221,7 +239,7 @@ namespace Billy.Api.Tests
             try
             {
                 service.SideloadLines();
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.SuppliersInvoiceNo = "INV-SIDELOAD";
                 service.Update(result);
@@ -248,7 +266,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
                     .Set(b => b.SuppliersInvoiceNo, "DELTA-001"));
@@ -274,7 +292,7 @@ namespace Billy.Api.Tests
             try
             {
                 var dueDate = DateTime.Now.AddDays(60);
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
                     .Set(b => b.DueDate, dueDate));
@@ -298,7 +316,7 @@ namespace Billy.Api.Tests
             try
             {
                 var dueDate = DateTime.Now.AddDays(90);
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
                     .Set(b => b.SuppliersInvoiceNo, "DELTA-MULTI")
@@ -325,7 +343,7 @@ namespace Billy.Api.Tests
             {
                 service.SideloadLines();
                 var dueDate = DateTime.Now.AddDays(30);
-                var id = service.Create(BuildDraftBill(contactId));
+                var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
                     .Set(b => b.SuppliersInvoiceNo, "DELTA-SIDE")

@@ -2,7 +2,7 @@
 
 namespace Billy.Api.Models
 {
-    public class OrganizationRoot
+    public class OrganizationRoot : Root
     {
         public Meta Meta { get; set; }
         public Organization Organization { get; set; }

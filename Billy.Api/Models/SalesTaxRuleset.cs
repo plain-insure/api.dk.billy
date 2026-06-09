@@ -1,11 +1,6 @@
 namespace Billy.Api.Models
 {
-    public class SalesTaxRulesetIdList
-    {
-        public List<string>? SalesTaxRulesets { get; set; }
-    }
-
-    public class SalesTaxRulesetRoot : Root<SalesTaxRulesetIdList>
+    public class SalesTaxRulesetRoot : Root
     {
         public SalesTaxRuleset? SalesTaxRuleset { get; set; }
         public List<SalesTaxRuleset>? SalesTaxRulesets { get; set; }

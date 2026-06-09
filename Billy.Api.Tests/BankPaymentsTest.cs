@@ -59,9 +59,9 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Create()
         {
-            var id = service.Create(BuildPayment());
-            VoidPayment(id);
-            Assert.IsNotNull(id);
+            var payment = service.Create(BuildPayment());
+            VoidPayment(payment.Id);
+            Assert.IsNotNull(payment);
         }
 
         // ── Get ──────────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ namespace Billy.Api.Tests
         public void Get()
         {
             var created = existingPaymentId == null;
-            var id = existingPaymentId ?? service.Create(BuildPayment());
+            var id = existingPaymentId ?? service.Create(BuildPayment())?.Id;
             try
             {
                 var result = service.Get(id);
@@ -88,7 +88,7 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Void()
         {
-            var id = existingNonVoidedPaymentId ?? service.Create(BuildPayment());
+            var id = existingNonVoidedPaymentId ?? service.Create(BuildPayment())?.Id;
 
             service.Update(id, new DeltaObject<BankPayment>().Set(p => p.IsVoided, true));
 

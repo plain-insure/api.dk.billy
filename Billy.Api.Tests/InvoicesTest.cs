@@ -31,7 +31,7 @@ namespace Billy.Api.Tests
                 Phone = "",
                 IsCustomer = true,
                 IsSupplier = false
-            }) ?? throw new InvalidOperationException("Failed to create customer contact");
+            })?.Id ?? throw new InvalidOperationException("Failed to create customer contact");
 
         private void DeleteContact(string contactId) =>
             new Contacts(Client).Delete(contactId);
@@ -43,7 +43,7 @@ namespace Billy.Api.Tests
                 Name = "Test Product",
                 AccountId = productAccountId,
                 Unit = "pieces"
-            }) ?? throw new InvalidOperationException("Failed to create product");
+            })?.Id ?? throw new InvalidOperationException("Failed to create product");
 
         private void DeleteProduct(string productId) =>
             new Products(Client).Delete(productId);
@@ -75,10 +75,11 @@ namespace Billy.Api.Tests
             var productId = CreateProduct();
             try
             {
-                var id = service.Create(BuildInvoice(contactId, productId));
+                var id = service.Create(BuildInvoice(contactId, productId))?.Id;
+                Assert.IsNotNull(id);
                 var result = service.Get(id);
                 service.Delete(id);
-                Assert.AreEqual(id, result.Id);
+                Assert.AreEqual(id, result?.Id);
             }
             finally
             {
@@ -104,7 +105,8 @@ namespace Billy.Api.Tests
             var productId = CreateProduct();
             try
             {
-                var id = service.Create(BuildInvoice(contactId, productId, draft ? "draft" : "approved"));
+                var id = service.Create(BuildInvoice(contactId, productId, draft ? "draft" : "approved"))?.Id;
+                Assert.IsNotNull(id);
                 if (draft)
                     service.Delete(id);
                 Assert.IsNotNull(id);

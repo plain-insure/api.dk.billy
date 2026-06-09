@@ -1,11 +1,6 @@
 namespace Billy.Api.Models
 {
-    public class DaybookIdList
-    {
-        public List<string>? Daybooks { get; set; }
-    }
-
-    public class DaybookRoot : Root<DaybookIdList>
+    public class DaybookRoot : Root
     {
         public Daybook? Daybook { get; set; }
         public List<Daybook>? Daybooks { get; set; }

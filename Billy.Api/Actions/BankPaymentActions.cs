@@ -5,7 +5,7 @@ namespace Billy.Api.Actions
     public static class BankPaymentActions
     {
         // Pay an invoice — records an incoming deposit (debit) against the invoice's outstanding balance
-        public static string? PayInvoice(
+        public static BankPayment? PayInvoice(
             this BankPayments payments,
             Invoice invoice,
             Account cashAccount,
@@ -24,7 +24,7 @@ namespace Billy.Api.Actions
             });
 
         // Pay an invoice — records an incoming deposit (debit) against the invoice's outstanding balance
-        public static Task<string?> PayInvoiceAsync(
+        public static Task<BankPayment?> PayInvoiceAsync(
             this BankPayments payments,
             Invoice invoice,
             Account cashAccount,
@@ -43,7 +43,7 @@ namespace Billy.Api.Actions
             });
 
         // Pay a bill — records an outgoing withdrawal (credit) against the bill's outstanding balance
-        public static string? PayBill(
+        public static BankPayment? PayBill(
             this BankPayments payments,
             Bill bill,
             Account cashAccount,
@@ -62,7 +62,7 @@ namespace Billy.Api.Actions
             });
 
         // Pay a bill — records an outgoing withdrawal (credit) against the bill's outstanding balance
-        public static Task<string?> PayBillAsync(
+        public static Task<BankPayment?> PayBillAsync(
             this BankPayments payments,
             Bill bill,
             Account cashAccount,

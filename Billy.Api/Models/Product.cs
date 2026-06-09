@@ -3,12 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api.Models
 {
-    public class ProductIdList
-    {
-        public List<string>? Products { get; set; }
-    }
-
-    public class ProductRoot : Root<ProductIdList>
+    public class ProductRoot : Root
     {
         public Product? Product { get; set; }
         public List<Product>? Products { get; set; }

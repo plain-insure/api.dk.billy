@@ -5,9 +5,8 @@ namespace Billy.Api.Models
     /// <summary>
     /// The root of the object that is returned when an account is created, updated, or retrieved.
     /// </summary>
-    public class AccountRoot
+    public class AccountRoot : Root
     {
-        public Meta Meta { get; set; }
         public Account Account { get; set; }
         public List<Account> Accounts { get; set; }
         public List<AccountGroup> AccountGroups { get; set; }

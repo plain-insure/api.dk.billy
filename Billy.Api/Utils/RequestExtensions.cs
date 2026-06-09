@@ -37,7 +37,7 @@ namespace Billy.Api.Utils
 
         internal static void AddIncludes<T, TRoot>(this RestRequest request, List<Base<T, TRoot>.SideloadDescriptor> sideloads)
                                                             where T : class, IEntity
-                                                            where TRoot : class, new()
+                                                            where TRoot : Root, new()
         {
 
             var includes = string.Join(",", sideloads

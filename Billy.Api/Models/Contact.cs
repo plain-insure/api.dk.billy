@@ -4,14 +4,8 @@ using System.Text.Json.Serialization;
 namespace Billy.Api.Models
 {
 
-    public class ContactIdList
-    {
-        public List<string>? Contacts { get; set; }
 
-    }
-
-
-    public class ContactRoot : Root<ContactIdList>
+    public class ContactRoot : Root
     {
         public List<Contact>? Contacts { get; set; }
         public Contact? Contact { get; set; }

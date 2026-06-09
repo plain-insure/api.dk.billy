@@ -2,9 +2,9 @@
 {
 
 
-    public class Root<TList> where TList : class
+    public class Root
     {
-        public Meta<TList>? Meta { get; set; }
+        public Meta? Meta { get; set; }
     }
 
     public class Meta
@@ -13,11 +13,7 @@
         public bool Success { get; set; }
         public double Time { get; set; }
         public Paging Paging { get; set; }
-    }
-
-    public class Meta<TRoot> : Meta where TRoot : class
-    {
-        public TRoot? DeletedRecords { get; set; }
+        public Dictionary<string, List<string>>? DeletedRecords { get; set; }
     }
 
     public class Paging

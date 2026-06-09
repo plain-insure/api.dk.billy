@@ -1,9 +1,8 @@
 ﻿namespace Billy.Api.Models
 {
 
-    public class AccountStatementRoot
+    public class AccountStatementRoot : Root
     {
-        public Meta Meta { get; set; }
         public AccountStatement AccountStatement { get; set; }
     }
 

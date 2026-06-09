@@ -25,11 +25,12 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Get()
         {
-            var id = service.Create(BuildDaybook());
+            var id = service.Create(BuildDaybook())?.Id;
+            Assert.IsNotNull(id);
             try
             {
                 var result = service.Get(id);
-                Assert.AreEqual(id, result.Id);
+                Assert.AreEqual(id, result?.Id);
             }
             finally
             {
@@ -40,7 +41,8 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Create()
         {
-            var id = service.Create(BuildDaybook());
+            var id = service.Create(BuildDaybook())?.Id;
+            Assert.IsNotNull(id);
             service.Delete(id);
             Assert.IsNotNull(id);
         }
@@ -48,7 +50,8 @@ namespace Billy.Api.Tests
         [TestMethod]
         public void Delete()
         {
-            var id = service.Create(BuildDaybook());
+            var id = service.Create(BuildDaybook())?.Id;
+            Assert.IsNotNull(id);
             var result = service.Delete(id);
             Assert.IsNotNull(result);
         }

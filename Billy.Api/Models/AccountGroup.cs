@@ -1,8 +1,7 @@
 ﻿namespace Billy.Api.Models
 {
-    public class AccountGroupRoot
+    public class AccountGroupRoot : Root
     {
-        public Meta Meta { get; set; }
         public AccountGroup AccountGroup { get; set; }
         public List<AccountGroup> AccountGroups { get; set; }
     }

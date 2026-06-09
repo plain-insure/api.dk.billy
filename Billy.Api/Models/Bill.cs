@@ -3,15 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api.Models
 {
-    public class BillIdList
-    {
-        public List<string>? Bills { get; set; }
-    }
 
     /// <summary>
     /// The root of the object that is returned when a bill is created, updated, or retrieved.
     /// </summary>
-    public class BillRoot : Root<BillIdList>
+    public class BillRoot : Root
     {
         public Bill? Bill { get; set; }
         public List<Bill>? Bills { get; set; }

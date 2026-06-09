@@ -8,7 +8,7 @@ namespace Billy.Api.Repositories
 {
     public abstract partial class Base<T, TRoot>
         where T : class, IEntity
-        where TRoot : class, new()
+        where TRoot : Root, new()
     {
 
         protected readonly RestClient client;
@@ -17,6 +17,10 @@ namespace Billy.Api.Repositories
         protected virtual Func<TRoot?, IList<T>?> RootToMultiple { get; private set; }
 
         protected virtual string RequestUrl { get; private set; }
+
+        protected virtual string JsonNameSingular { get; private set;  }
+
+        protected virtual string JsonNamePlural { get; private set; }
 
         private readonly List<SideloadDescriptor> sideloads = [];
 
@@ -32,13 +36,21 @@ namespace Billy.Api.Repositories
                 throw new ArgumentException("Either a client or a key must be provided, not both");
 
             if (client is null)
-                this.client = ClientExtensions.CreateBillyClient(key);
+                this.client = ClientExtensions.CreateBillyClient(key!);
             else
                 this.client = client;
 
+            var singularName = typeof(T).Name;
+            var pluralName = this.GetType().Name;
+
+            if (string.IsNullOrWhiteSpace(JsonNameSingular))
+                JsonNameSingular = JsonNamingPolicy.CamelCase.ConvertName(singularName);
+
+            if (string.IsNullOrWhiteSpace(JsonNamePlural))
+                JsonNamePlural = JsonNamingPolicy.CamelCase.ConvertName(this.GetType().Name);
 
             if (string.IsNullOrWhiteSpace(RequestUrl))
-                RequestUrl = $"{JsonNamingPolicy.CamelCase.ConvertName(this.GetType().Name)}/";
+                RequestUrl = $"{JsonNamePlural}/";
 
             RootToMultiple ??= BaseHelpers<T, TRoot>.CompileDefaultMultiple(this.GetType().Name);
             RootToSingle ??= BaseHelpers<T, TRoot>.CompileDefaultSingle();
@@ -56,7 +68,7 @@ namespace Billy.Api.Repositories
 
         public void AddSideload<S>(Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
         {
-            AddSideload(itemProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(itemProperty.GetPropertyName()));
+            AddSideload(itemProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(JsonNameSingular, itemProperty.GetPropertyName()));
         }
 
         public void AddSideload<S>(Expression<Func<T, S?>> itemProperty, string includeProperty) where S : class, IEntity, new()
@@ -71,7 +83,7 @@ namespace Billy.Api.Repositories
         /// </summary>
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty) where S : class, IEntity, new()
         {
-            AddSideload(sideloadedObject, itemProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(itemProperty.GetPropertyName()));
+            AddSideload(sideloadedObject, itemProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(JsonNameSingular, itemProperty.GetPropertyName()));
         }
 
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObject, Expression<Func<T, S?>> itemProperty, string includeProperty) where S : class, IEntity, new()
@@ -86,7 +98,7 @@ namespace Billy.Api.Repositories
         /// </summary>
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Expression<Func<T, IEnumerable<S>?>> itemsProperty) where S : class, IEntity, new()
         {
-            AddSideload(sideloadedObjects, itemsProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(itemsProperty.GetPropertyName()));
+            AddSideload(sideloadedObjects, itemsProperty, BaseHelpers<T, TRoot>.DeriveIncludeProperty(JsonNameSingular, itemsProperty.GetPropertyName()));
         }
 
         public void AddSideload<S>(Func<TRoot, IEnumerable<S>?> sideloadedObjects, Expression<Func<T, IEnumerable<S>?>> itemsProperty, string includeProperty) where S : class, IEntity, new()
@@ -283,124 +295,5 @@ namespace Billy.Api.Repositories
             foreach (var descriptor in sideloads)
                 descriptor.ApplyAll(root, items);
         }
-    }
-
-    public abstract class BaseWithCreate<T, TRoot> : Base<T, TRoot>
-        where T : class, IEntity
-        where TRoot : class, new()
-    {
-        protected virtual Func<T, TRoot> SingleToRoot { get; private set; }
-
-
-        protected BaseWithCreate(RestClient? client, string? key) :
-            base(client, key)
-        {
-            SingleToRoot ??= BaseHelpers<T, TRoot>.CompileSingleToRoot();
-        }
-        protected BaseWithCreate(RestClient client) :
-            this(client, null)
-        {
-        }
-        protected BaseWithCreate(string key) :
-            this(null, key)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new item.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public string? Create(T item)
-        {
-            var request = new RestRequest(RequestUrl, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBodyWithSharedOptions(SingleToRoot(item));
-
-            var result = client.Post<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
-        /// <summary>
-        /// Creates a new item using asynchronous operations.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public async Task<string?> CreateAsync(T item)
-        {
-            var request = new RestRequest(RequestUrl, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBodyWithSharedOptions(SingleToRoot(item));
-
-            var result = await client.PostAsync<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
-        /// <summary>
-        /// Updates an existing item. The item must have a valid Id property, which is used to identify the item to update.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public string? Update(T item)
-        {
-            var request = new RestRequest(RequestUrl + item.Id, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            request.AddJsonBodyWithSharedOptions(SingleToRoot(item));
-            var result = client.Put<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
-        /// <summary>
-        /// Updates an existing item using asynchronous operations. The item must have a valid Id property, which is used to identify the item to update.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public async Task<string?> UpdateAsync(T item)
-        {
-            var request = new RestRequest(RequestUrl + item.Id, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            request.AddJsonBodyWithSharedOptions(SingleToRoot(item));
-            var result = await client.PutAsync<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
-        /// <summary>
-        /// Updates an existing item. The item must have a valid Id property, which is used to identify the item to update.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public string? Update(string id, DeltaObject<T> item)
-        {
-            var request = new RestRequest(RequestUrl + id, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            request.AddUpdateBodyWithSharedOptions(item);
-            var result = client.Put<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
-        public async Task<string?> UpdateAsync(string id, DeltaObject<T> item)
-        {
-            var request = new RestRequest(RequestUrl + id, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-            request.AddUpdateBodyWithSharedOptions(item);
-            var result = await client.PutAsync<TRoot>(request);
-            return RootToMultiple(result)?[0].Id;
-        }
-
     }
 }

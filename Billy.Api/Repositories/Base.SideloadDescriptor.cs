@@ -1,8 +1,10 @@
-﻿namespace Billy.Api.Repositories
+﻿using Billy.Api.Models;
+
+namespace Billy.Api.Repositories
 {
     public abstract partial class Base<T, TRoot>
         where T : class, IEntity
-        where TRoot : class, new()
+        where TRoot : Root, new()
     {
         internal abstract class SideloadDescriptor(string includeProperty)
         {
