@@ -12,7 +12,7 @@ namespace Billy.Api.Utils
         public static RestRequest AddUpdateBodyWithSharedOptions<T>(this RestRequest request, DeltaObject<T> updates) where T : class
         {
 
-            var updatesJson = JsonSerializer.Serialize(updates.GetModifications(), RestJsonOptions.Instance);
+            var updatesJson = JsonSerializer.Serialize(updates.GetSerializedModifications(), RestJsonOptions.Instance);
             var root = "{\"" + typeof(T).Name.ToLowerInvariant() + "\": " + updatesJson + "}"; //Manually build this
             request.AddStringBody(root, DataFormat.Json);
             return request;

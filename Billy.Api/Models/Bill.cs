@@ -68,6 +68,7 @@ namespace Billy.Api.Models
 
         public List<BillLine>? Lines { get; set; }
 
+        [JsonIgnoreOnWrite]
         public List<string>? LineIds { get; set; }
     }
 

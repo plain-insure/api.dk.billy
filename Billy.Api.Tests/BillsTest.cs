@@ -1,4 +1,4 @@
-﻿using Billy.Api.Models;
+using Billy.Api.Models;
 using RestSharp;
 
 namespace Billy.Api.Tests
@@ -41,6 +41,7 @@ namespace Billy.Api.Tests
             OrganizationId = OrganizationId,
             ContactId = contactId,
             EntryDate = DateTime.Now,
+            DueDate = DateTime.Now.AddDays(14),
             State = BillStates.draft,
             TaxMode = "incl",
             Lines =
@@ -54,6 +55,7 @@ namespace Billy.Api.Tests
             ]
         };
 
+        // ── List ────────────────────────────────────────────────────────────────
 
         [TestMethod]
         public void List()
@@ -62,6 +64,8 @@ namespace Billy.Api.Tests
 
             Assert.IsNotNull(result);
         }
+
+        // ── Create / Delete ──────────────────────────────────────────────────────
 
         [TestMethod]
         public void CreateDelete()
@@ -78,6 +82,8 @@ namespace Billy.Api.Tests
                 DeleteContact(contactId);
             }
         }
+
+        // ── Get ──────────────────────────────────────────────────────────────────
 
         [TestMethod]
         public void Get()
@@ -132,9 +138,35 @@ namespace Billy.Api.Tests
             }
         }
 
+        // ── Update via full object ────────────────────────────────────────────────
+
         [TestMethod]
-        public void UpdateOriginal()
+        public void UpdateOriginal_StringField()
         {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                result.SuppliersInvoiceNo = "INV-001";
+                service.Update(result);
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("INV-001", updated.SuppliersInvoiceNo);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void UpdateOriginal_DateField()
+        {
+            // DueDate uses [JsonConverter(typeof(BillyDateConverter))] — date-only format "yyyy-MM-dd"
             var contactId = CreateSupplierContact();
             try
             {
@@ -143,46 +175,12 @@ namespace Billy.Api.Tests
                 var result = service.Get(id);
                 result.DueDate = dueDate;
                 service.Update(result);
-                var updatedResult = service.Get(id);
-                Assert.IsNotNull(updatedResult);
-                Assert.AreEqual(dueDate.Date, updatedResult.DueDate.Date);
 
-
-
+                var updated = service.Get(id);
                 service.Delete(id);
-                Assert.AreEqual(id, result.Id);
-            }
-            finally
-            {
-                DeleteContact(contactId);
-            }
-        }
 
-
-        public void UpdateDictionary()
-        {
-            var contactId = CreateSupplierContact();
-            try
-            {
-                var dueDate = DateTime.Now.AddDays(30);
-                var bill = BuildDraftBill(contactId);
-                var id = service.Create(bill);
-                
-                var updateDict = new Dictionary<string, object>
-                {
-                    { nameof(Bill.SuppliersInvoiceNo), "testNO" }
-                };
-
-                //service.Update(id, updateDict);
-
-                var updatedResult = service.Get(id);
-                Assert.IsNotNull(updatedResult);
-                Assert.AreEqual("testNO", updatedResult.SuppliersInvoiceNo);
-
-
-
-                var deletedId = service.Delete(id);
-                Assert.AreEqual(deletedId, updatedResult.Id);
+                Assert.IsNotNull(updated);
+                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
             }
             finally
             {
@@ -191,30 +189,24 @@ namespace Billy.Api.Tests
         }
 
         [TestMethod]
-        public void UpdateDelta()
+        public void UpdateOriginal_MultipleFields()
         {
             var contactId = CreateSupplierContact();
             try
             {
-                var dueDate = DateTime.Now.AddDays(30);
-                var bill = BuildDraftBill(contactId);
-                var id = service.Create(bill);
+                var dueDate = DateTime.Now.AddDays(45);
+                var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                result.SuppliersInvoiceNo = "INV-MULTI";
+                result.DueDate = dueDate;
+                service.Update(result);
 
+                var updated = service.Get(id);
+                service.Delete(id);
 
-                var updateDelta = new DeltaObject<Bill>();
-
-                updateDelta.Set(b => b.SuppliersInvoiceNo, "testNO");
-
-                service.Update(id, updateDelta);
-
-                var updatedResult = service.Get(id);
-                Assert.IsNotNull(updatedResult);
-                Assert.AreEqual("testNO", updatedResult.SuppliersInvoiceNo);
-
-
-
-                var deletedId = service.Delete(id);
-                Assert.AreEqual(deletedId, updatedResult.Id);
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("INV-MULTI", updated.SuppliersInvoiceNo);
+                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
             }
             finally
             {
@@ -222,5 +214,136 @@ namespace Billy.Api.Tests
             }
         }
 
+        [TestMethod]
+        public void UpdateOriginal_WithSideload()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                service.SideloadLines();
+                var id = service.Create(BuildDraftBill(contactId));
+                var result = service.Get(id);
+                result.SuppliersInvoiceNo = "INV-SIDELOAD";
+                service.Update(result);
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("INV-SIDELOAD", updated.SuppliersInvoiceNo);
+                Assert.IsNotNull(updated.Lines);
+                Assert.AreEqual(1, updated.Lines.Count);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        // ── Update via DeltaObject ────────────────────────────────────────────────
+
+        [TestMethod]
+        public void UpdateDelta_StringField()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var id = service.Create(BuildDraftBill(contactId));
+
+                service.Update(id, new DeltaObject<Bill>()
+                    .Set(b => b.SuppliersInvoiceNo, "DELTA-001"));
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("DELTA-001", updated.SuppliersInvoiceNo);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void UpdateDelta_DateField()
+        {
+            // Validates that DeltaObject respects [JsonConverter(typeof(BillyDateConverter))]
+            // and serializes DueDate as "yyyy-MM-dd" rather than full ISO 8601
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var dueDate = DateTime.Now.AddDays(60);
+                var id = service.Create(BuildDraftBill(contactId));
+
+                service.Update(id, new DeltaObject<Bill>()
+                    .Set(b => b.DueDate, dueDate));
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void UpdateDelta_MultipleFields()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                var dueDate = DateTime.Now.AddDays(90);
+                var id = service.Create(BuildDraftBill(contactId));
+
+                service.Update(id, new DeltaObject<Bill>()
+                    .Set(b => b.SuppliersInvoiceNo, "DELTA-MULTI")
+                    .Set(b => b.DueDate, dueDate));
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("DELTA-MULTI", updated.SuppliersInvoiceNo);
+                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
+
+        [TestMethod]
+        public void UpdateDelta_WithSideload()
+        {
+            var contactId = CreateSupplierContact();
+            try
+            {
+                service.SideloadLines();
+                var dueDate = DateTime.Now.AddDays(30);
+                var id = service.Create(BuildDraftBill(contactId));
+
+                service.Update(id, new DeltaObject<Bill>()
+                    .Set(b => b.SuppliersInvoiceNo, "DELTA-SIDE")
+                    .Set(b => b.DueDate, dueDate));
+
+                var updated = service.Get(id);
+                service.Delete(id);
+
+                Assert.IsNotNull(updated);
+                Assert.AreEqual("DELTA-SIDE", updated.SuppliersInvoiceNo);
+                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.IsNotNull(updated.Lines);
+                Assert.AreEqual(1, updated.Lines.Count);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+            }
+        }
     }
 }

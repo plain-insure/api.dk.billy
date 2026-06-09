@@ -1,6 +1,9 @@
-﻿using System.Linq.Expressions;
+﻿using Billy.Api.Utils;
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Billy.Api
 {
@@ -9,6 +12,22 @@ namespace Billy.Api
     {
         // Tracks the property name and the explicitly assigned value
         private readonly Dictionary<string, object?> _modifications = new(StringComparer.Ordinal);
+
+        // Per-T cache of camelCase property name → PropertyInfo, built once per concrete type
+        private static readonly Dictionary<string, PropertyInfo> _typePropertyCache =
+            typeof(T).GetProperties()
+                     .ToDictionary(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name));
+
+        // Options cache keyed by converter type so we don't allocate new JsonSerializerOptions repeatedly
+        private static readonly ConcurrentDictionary<Type, JsonSerializerOptions> _converterOptionsCache = new();
+
+        private static JsonSerializerOptions GetConverterOptions(Type converterType) =>
+            _converterOptionsCache.GetOrAdd(converterType, t =>
+            {
+                var opts = new JsonSerializerOptions(RestJsonOptions.Instance);
+                opts.Converters.Insert(0, (JsonConverter)Activator.CreateInstance(t)!);
+                return opts;
+            });
 
         public DeltaObject() { }
 
@@ -26,7 +45,7 @@ namespace Billy.Api
             ArgumentNullException.ThrowIfNull(update);
 
             var propInfo = DeltaObject<T>.GetPropertyInfo(update.Expression);
-            _modifications[propInfo.Name] = update.Value;
+            _modifications[JsonNamingPolicy.CamelCase.ConvertName(propInfo.Name)] = update.Value;
             return this;
         }
 
@@ -62,6 +81,29 @@ namespace Billy.Api
 
 
         internal Dictionary<string, object?> GetModifications() => _modifications;
+
+        /// <summary>
+        /// Returns modifications serialized to JsonElements, respecting [JsonConverter] attributes on T's properties.
+        /// Use this when building a JSON body so per-property converters (e.g. BillyDateConverter) are applied.
+        /// </summary>
+        internal Dictionary<string, JsonElement> GetSerializedModifications()
+        {
+            var result = new Dictionary<string, JsonElement>(_modifications.Count, StringComparer.Ordinal);
+            foreach (var (key, value) in _modifications)
+            {
+                if (_typePropertyCache.TryGetValue(key, out var propInfo))
+                {
+                    var converterType = propInfo.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
+                    var opts = converterType is not null ? GetConverterOptions(converterType) : RestJsonOptions.Instance;
+                    result[key] = JsonSerializer.SerializeToElement(value, propInfo.PropertyType, opts);
+                }
+                else
+                {
+                    result[key] = JsonSerializer.SerializeToElement(value, RestJsonOptions.Instance);
+                }
+            }
+            return result;
+        }
 
         /// <summary>
         /// Returns a list of property names that were modified. Useful for EF Core tracking or logging.
