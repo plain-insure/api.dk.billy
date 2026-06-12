@@ -46,7 +46,7 @@ namespace Billy.Api.Models
         public decimal? BaseAmount { get; set; }
 
         /// <summary>Whether this line is a <c>"Debit"</c> or <c>"Credit"</c> posting.</summary>
-        public CashSide Side { get; set; }
+        public CashSide? Side { get; set; }
 
         /// <summary>ISO 4217 currency code for this line, if different from the base currency.</summary>
         public string? CurrencyId { get; set; }

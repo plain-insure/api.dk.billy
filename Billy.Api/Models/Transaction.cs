@@ -54,6 +54,6 @@ namespace Billy.Api.Models
         public string OriginatorType { get; set; }
 
         /// <summary>Whether the transaction increases (Debit) or decreases (Credit) the originator's account.</summary>
-        public CashSide Side { get; set; }
+        public CashSide? Side { get; set; }
     }
 }

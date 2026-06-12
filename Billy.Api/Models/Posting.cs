@@ -30,7 +30,7 @@ namespace Billy.Api.Models
         public decimal Amount { get; set; }
 
         /// <summary>Whether this is a <c>"Debit"</c> or <c>"Credit"</c> posting.</summary>
-        public CashSide Side { get; set; }
+        public CashSide? Side { get; set; }
 
         /// <summary>ISO 4217 currency code of this posting.</summary>
         public string CurrencyId { get; set; }
