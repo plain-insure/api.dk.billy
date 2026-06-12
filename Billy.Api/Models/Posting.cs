@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Billy.Api.Models
 {
     /// <summary>
-    /// Represents a single ledger posting (debit or credit entry) generated as part of a <see cref="Transaction"/>.
+    /// Represents a single ledger posting (Debit or Credit entry) generated as part of a <see cref="Transaction"/>.
     /// Postings are the lowest-level records in the double-entry bookkeeping system and are read-only.
     /// </summary>
     public class Posting : IEntity
@@ -18,8 +18,7 @@ namespace Billy.Api.Models
         public string TransactionId { get; set; }
 
         /// <summary>Accounting entry date (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime EntryDate { get; set; }
+        public DateOnly EntryDate { get; set; }
 
         /// <summary>Descriptive text shown in account statements for this posting.</summary>
         public string Text { get; set; }
@@ -28,10 +27,10 @@ namespace Billy.Api.Models
         public string AccountId { get; set; }
 
         /// <summary>Monetary amount of this posting in the transaction's currency.</summary>
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
-        /// <summary>Whether this is a <c>"debit"</c> or <c>"credit"</c> posting.</summary>
-        public string Side { get; set; }
+        /// <summary>Whether this is a <c>"Debit"</c> or <c>"Credit"</c> posting.</summary>
+        public CashSide Side { get; set; }
 
         /// <summary>ISO 4217 currency code of this posting.</summary>
         public string CurrencyId { get; set; }

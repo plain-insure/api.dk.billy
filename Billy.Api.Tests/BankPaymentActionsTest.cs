@@ -90,10 +90,10 @@ namespace Billy.Api.Tests
             {
                 OrganizationId = OrganizationId,
                 ContactId = supplierContactId,
-                EntryDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(14),
-                State = BillStates.approved,
-                TaxMode = "incl",
+                EntryDate = DateOnly.FromDateTime(DateTime.Now),
+                DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(14)),
+                State = State.Approved,
+                TaxMode = TaxMode.Incl,
                 Lines = [new BillLine { AccountId = expenseAccountId, TaxRateId = purchaseTaxRateId, Amount = 100, Description = "Test line" }]
             })?.Id ?? throw new InvalidOperationException("Failed to create bill");
 
@@ -121,7 +121,7 @@ namespace Billy.Api.Tests
         public void PayInvoice_PartialAmount()
         {
             var invoice = GetInvoice(CreateApprovedInvoice());
-            var payment = service.PayInvoice(invoice, cashAccount, amount: 50.00);
+            var payment = service.PayInvoice(invoice, cashAccount, amount: 50.00m);
             if (payment?.Id != null) VoidPayment(payment.Id);
             Assert.IsNotNull(payment);
         }
@@ -150,7 +150,7 @@ namespace Billy.Api.Tests
         public void PayBill_PartialAmount()
         {
             var bill = GetBill(CreateApprovedBill());
-            var payment = service.PayBill(bill, cashAccount, amount: 50.00);
+            var payment = service.PayBill(bill, cashAccount, amount: 50);
             if (payment?.Id != null) VoidPayment(payment.Id);
             Assert.IsNotNull(payment);
         }

@@ -35,7 +35,7 @@ namespace Billy.Api.Models
 
         /// <summary>
         /// ID of the default contra <see cref="Account"/> used when entering transactions in this daybook.
-        /// Acts as the offsetting account for the debit or credit side.
+        /// Acts as the offsetting account for the Debit or Credit side.
         /// </summary>
         public string? DefaultContraAccountId { get; set; }
 

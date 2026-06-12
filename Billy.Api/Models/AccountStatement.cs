@@ -1,7 +1,7 @@
 namespace Billy.Api.Models
 {
     /// <summary>
-    /// API response envelope for the account statement endpoint (<c>GET /v2/accounts/:id/statement</c>).
+    /// API response envelope for the account statement endpoint (<c>GET /v2/accounts/:id/statement</c>). Filtering uses the parameter "period"
     /// </summary>
     public class AccountStatementRoot : Root
     {
@@ -16,7 +16,8 @@ namespace Billy.Api.Models
     public class AccountStatement
     {
         /// <summary>Opening balance of the account at the start of the requested period.</summary>
-        public int StartBalance { get; set; }
+        public decimal? StartBalance { get; set; }
+        public decimal? StartBaseBalance { get; set; }
 
         /// <summary>
         /// <c>true</c> if the statement was cut short because it exceeded the maximum row limit.
@@ -25,7 +26,7 @@ namespace Billy.Api.Models
         public bool IsTruncated { get; set; }
 
         /// <summary>Individual posting rows that make up the statement, in chronological order.</summary>
-        public Row[] Rows { get; set; }
+        public required Row[] Rows { get; set; }
 
         /// <summary>A single row in an <see cref="AccountStatement"/>, corresponding to one ledger posting.</summary>
         public class Row
@@ -46,13 +47,13 @@ namespace Billy.Api.Models
             public string OriginatorName { get; set; }
 
             /// <summary>Accounting entry date of the posting (formatted as a string by the API).</summary>
-            public string EntryDate { get; set; }
+            public DateOnly EntryDate { get; set; }
 
             /// <summary>Descriptive text shown for this posting in the statement.</summary>
             public string Text { get; set; }
 
             /// <summary>Net amount of the posting in the account's currency.</summary>
-            public string BaseAmount { get; set; }
+            public decimal BaseAmount { get; set; }
 
             /// <summary>ISO 4217 currency code of this posting.</summary>
             public string CurrencyId { get; set; }
@@ -61,19 +62,19 @@ namespace Billy.Api.Models
             public Currency Currency { get; set; }
 
             /// <summary>Tax amount included in this posting.</summary>
-            public int Tax { get; set; }
+            public decimal Tax { get; set; }
 
             /// <summary><c>true</c> if this posting has been voided.</summary>
             public bool IsVoided { get; set; }
 
             /// <summary>Gross amount (including tax) of the posting.</summary>
-            public int GrossAmount { get; set; }
+            public decimal GrossAmount { get; set; }
 
             /// <summary>Credit component of this posting.</summary>
-            public int Credit { get; set; }
+            public double Credit { get; set; }
 
             /// <summary>Running balance of the account after this posting.</summary>
-            public int Balance { get; set; }
+            public double Balance { get; set; }
 
             /// <summary><c>true</c> if this row has special display treatment in the Billy UI.</summary>
             public bool IsSpecial { get; set; }

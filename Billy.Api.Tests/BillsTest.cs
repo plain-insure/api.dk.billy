@@ -1,3 +1,4 @@
+using Billy.Api.Extensions;
 using Billy.Api.Models;
 using RestSharp;
 
@@ -40,10 +41,10 @@ namespace Billy.Api.Tests
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
-            EntryDate = DateTime.Now,
-            DueDate = DateTime.Now.AddDays(14),
-            State = BillStates.draft,
-            TaxMode = "incl",
+            EntryDate = DateOnly.FromDateTime(DateTime.Now),
+            DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(14)),
+            State = State.Draft,
+            TaxMode = TaxMode.Incl,
             Lines =
             [
                 new BillLine
@@ -188,7 +189,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var dueDate = DateTime.Now.AddDays(30);
+                var dueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
                 var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.DueDate = dueDate;
@@ -198,7 +199,7 @@ namespace Billy.Api.Tests
                 service.Delete(id);
 
                 Assert.IsNotNull(updated);
-                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.AreEqual(dueDate, updated.DueDate);
             }
             finally
             {
@@ -212,7 +213,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var dueDate = DateTime.Now.AddDays(45);
+                var dueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(45));
                 var id = service.Create(BuildDraftBill(contactId))?.Id;
                 var result = service.Get(id);
                 result.SuppliersInvoiceNo = "INV-MULTI";
@@ -224,7 +225,7 @@ namespace Billy.Api.Tests
 
                 Assert.IsNotNull(updated);
                 Assert.AreEqual("INV-MULTI", updated.SuppliersInvoiceNo);
-                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.AreEqual(dueDate, updated.DueDate);
             }
             finally
             {
@@ -291,7 +292,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var dueDate = DateTime.Now.AddDays(60);
+                var dueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(60));
                 var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
@@ -301,7 +302,7 @@ namespace Billy.Api.Tests
                 service.Delete(id);
 
                 Assert.IsNotNull(updated);
-                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.AreEqual(dueDate, updated.DueDate);
             }
             finally
             {
@@ -315,7 +316,7 @@ namespace Billy.Api.Tests
             var contactId = CreateSupplierContact();
             try
             {
-                var dueDate = DateTime.Now.AddDays(90);
+                var dueDate = DateTime.Now.AddDays(90).ToDateOnly();
                 var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
@@ -327,7 +328,7 @@ namespace Billy.Api.Tests
 
                 Assert.IsNotNull(updated);
                 Assert.AreEqual("DELTA-MULTI", updated.SuppliersInvoiceNo);
-                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.AreEqual(dueDate, updated.DueDate);
             }
             finally
             {
@@ -342,7 +343,7 @@ namespace Billy.Api.Tests
             try
             {
                 service.SideloadLines();
-                var dueDate = DateTime.Now.AddDays(30);
+                var dueDate = DateTime.Now.AddDays(30).ToDateOnly();
                 var id = service.Create(BuildDraftBill(contactId))?.Id;
 
                 service.Update(id, new DeltaObject<Bill>()
@@ -354,7 +355,7 @@ namespace Billy.Api.Tests
 
                 Assert.IsNotNull(updated);
                 Assert.AreEqual("DELTA-SIDE", updated.SuppliersInvoiceNo);
-                Assert.AreEqual(dueDate.Date, updated.DueDate.Date);
+                Assert.AreEqual(dueDate, updated.DueDate);
                 Assert.IsNotNull(updated.Lines);
                 Assert.AreEqual(1, updated.Lines.Count);
             }

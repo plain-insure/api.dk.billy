@@ -123,13 +123,13 @@ namespace Billy.Api.Models
         public string SubscriptionCurrencyId { get; set; }
 
         /// <summary>Monthly subscription price in the subscription currency.</summary>
-        public int SubscriptionPrice { get; set; }
+        public decimal SubscriptionPrice { get; set; }
 
         /// <summary>Subscription billing period (e.g. <c>"monthly"</c>, <c>"yearly"</c>).</summary>
         public string SubscriptionPeriod { get; set; }
 
         /// <summary>Percentage discount applied to the subscription price.</summary>
-        public int SubscriptionDiscount { get; set; }
+        public decimal SubscriptionDiscount { get; set; }
 
         /// <summary>Date on which the current subscription period expires.</summary>
         public string SubscriptionExpires { get; set; }
@@ -204,8 +204,7 @@ namespace Billy.Api.Models
         /// Start date for bank synchronization import (date-only, serialized as <c>yyyy-MM-dd</c>).
         /// Transactions before this date are excluded from bank sync.
         /// </summary>
-        [JsonConverter(typeof(Billy.Api.Converters.BillyDateConverter))]
-        public DateTime BankSyncStartDate { get; set; }
+        public DateOnly? BankSyncStartDate { get; set; }
 
         /// <summary>ID of the default <see cref="Account"/> used to post bank fees.</summary>
         public string DefaultBankFeeAccountId { get; set; }

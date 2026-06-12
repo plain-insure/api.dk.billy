@@ -40,7 +40,7 @@ namespace Billy.Api.Models
         public string? Description { get; set; }
 
         /// <summary>Tax rate as a decimal fraction (e.g. <c>0.25</c> for 25% VAT).</summary>
-        public double Rate { get; set; }
+        public decimal Rate { get; set; }
 
         /// <summary><c>true</c> if this tax rate applies to sales (outgoing invoices).</summary>
         public bool AppliesToSales { get; set; }
@@ -90,7 +90,7 @@ namespace Billy.Api.Models
         public int? DeductionComponentIndex { get; set; }
 
         /// <summary>Fraction of the tax that is deductible (e.g. <c>0.5</c> for 50% deductible).</summary>
-        public double Share { get; set; }
+        public decimal Share { get; set; }
 
         /// <summary>Source system that defined this deduction component.</summary>
         public string? Source { get; set; }

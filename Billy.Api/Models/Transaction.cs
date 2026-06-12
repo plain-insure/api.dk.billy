@@ -3,19 +3,6 @@ using System.Text.Json.Serialization;
 namespace Billy.Api.Models
 {
     /// <summary>
-    /// Indicates which side of a double-entry bookkeeping entry a <see cref="Transaction"/> affects.
-    /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<TransactionSide>))]
-    public enum TransactionSide
-    {
-        /// <summary>Debit side — increases assets and expenses; decreases liabilities, equity, and income.</summary>
-        Debit,
-
-        /// <summary>Credit side — increases liabilities, equity, and income; decreases assets and expenses.</summary>
-        Credit
-    }
-
-    /// <summary>
     /// Represents an accounting transaction generated when an invoice, bill, or daybook entry is approved.
     /// Transactions are sideloaded in some API responses and are read-only.
     /// </summary>
@@ -37,8 +24,7 @@ namespace Billy.Api.Models
         public DateTime createdTime { get; set; }
 
         /// <summary>Accounting entry date (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime EntryDate { get; set; }
+        public DateOnly EntryDate { get; set; }
 
         /// <summary>Reference string identifying the source document (e.g. <c>"invoice:inv-123"</c>).</summary>
         public string OriginatorReference { get; set; }
@@ -56,7 +42,7 @@ namespace Billy.Api.Models
         public string Creator { get; set; }
 
         /// <summary>Total amount of this transaction in the originator's currency.</summary>
-        public int Amount { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>ISO 4217 currency code of the originating document.</summary>
         public string OriginatorCurrencyId { get; set; }
@@ -68,6 +54,6 @@ namespace Billy.Api.Models
         public string OriginatorType { get; set; }
 
         /// <summary>Whether the transaction increases (Debit) or decreases (Credit) the originator's account.</summary>
-        public TransactionSide Side { get; set; }
+        public CashSide Side { get; set; }
     }
 }

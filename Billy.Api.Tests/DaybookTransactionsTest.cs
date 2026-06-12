@@ -1,3 +1,4 @@
+using Billy.Api.Extensions;
 using Billy.Api.Models;
 using RestSharp;
 
@@ -32,8 +33,8 @@ namespace Billy.Api.Tests
         {
             OrganizationId = OrganizationId,
             DaybookId = daybookId,
-            EntryDate = DateTime.Now,
-            State = "draft",
+            EntryDate = DateTime.Now.ToDateOnly(),
+            State = State.Draft,
             Lines =
             [
                 new DaybookTransactionLine
@@ -41,7 +42,7 @@ namespace Billy.Api.Tests
                     AccountId = accountId,
                     ContraAccountId = contraAccountId,
                     Amount = 100,
-                    Side = "debit",
+                    Side = CashSide.Debit,
                     Text = "Test line"
                 }
             ]

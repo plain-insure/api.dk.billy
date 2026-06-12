@@ -3,22 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api.Models
 {
-    /// <summary>
-    /// Indicates whether a <see cref="BankPayment"/> represents an incoming or outgoing cash flow.
-    /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<CashSide>))]
-    public enum CashSide
-    {
-        /// <summary>
-        /// Debit — money received into the cash/bank account (e.g. customer payment for an invoice).
-        /// </summary>
-        debit,
-
-        /// <summary>
-        /// Credit — money leaving the cash/bank account (e.g. paying a supplier bill).
-        /// </summary>
-        credit
-    }
 
     /// <summary>
     /// API response envelope for bank payment endpoints
@@ -54,16 +38,15 @@ namespace Billy.Api.Models
         public DateTime CreatedTime { get; set; }
 
         /// <summary>Value date of the payment (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime EntryDate { get; set; }
+        public DateOnly EntryDate { get; set; }
 
         /// <summary>Payment amount in the bank account's currency.</summary>
-        public double CashAmount { get; set; }
+        public decimal CashAmount { get; set; }
 
         /// <summary>
         /// Direction of the cash flow relative to the bank account.
-        /// Use <see cref="CashSide.debit"/> for incoming payments (invoice receipts)
-        /// and <see cref="CashSide.credit"/> for outgoing payments (bill settlements).
+        /// Use <see cref="CashSide.Debit"/> for incoming payments (invoice receipts)
+        /// and <see cref="CashSide.Credit"/> for outgoing payments (bill settlements).
         /// </summary>
         public CashSide? CashSide { get; set; }
 
@@ -74,7 +57,7 @@ namespace Billy.Api.Models
         /// Exchange rate between the bank account currency and the subject currency,
         /// when the payment involves a foreign currency invoice or bill.
         /// </summary>
-        public double? CashExchangeRate { get; set; }
+        public decimal? CashExchangeRate { get; set; }
 
         /// <summary>
         /// ISO 4217 currency code of the invoice or bill being settled,
@@ -83,7 +66,7 @@ namespace Billy.Api.Models
         public string? SubjectCurrencyId { get; set; }
 
         /// <summary>Bank fee charged for this transaction, in the bank account's currency.</summary>
-        public double? FeeAmount { get; set; }
+        public decimal? FeeAmount { get; set; }
 
         /// <summary>ID of the <see cref="Account"/> to which the bank fee is posted.</summary>
         public string? FeeAccountId { get; set; }
@@ -133,9 +116,9 @@ namespace Billy.Api.Models
         public string? CurrencyId { get; set; }
 
         /// <summary>Monetary amount of this posting.</summary>
-        public double? Amount { get; set; }
+        public decimal? Amount { get; set; }
 
-        /// <summary>Whether this is a <c>"debit"</c> or <c>"credit"</c> posting.</summary>
-        public string? Side { get; set; }
+        /// <summary>Whether this is a <c>"Debit"</c> or <c>"Credit"</c> posting.</summary>
+        public CashSide? Side { get; set; }
     }
 }

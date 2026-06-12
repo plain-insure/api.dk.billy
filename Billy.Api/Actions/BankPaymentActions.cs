@@ -22,15 +22,15 @@ namespace Billy.Api.Actions
             this BankPayments payments,
             Invoice invoice,
             Account cashAccount,
-            DateTime? entryDate = null,
-            double? amount = null) =>
+            DateOnly? entryDate = null,
+            decimal? amount = null) =>
             payments.Create(new BankPayment
             {
                 OrganizationId = invoice.OrganizationId,
                 ContactId = invoice.ContactId,
-                EntryDate = entryDate ?? DateTime.Today,
-                CashAmount = amount ?? (double)invoice.Balance,
-                CashSide = CashSide.debit,
+                EntryDate = entryDate ?? DateOnly.FromDateTime(DateTime.Today),
+                CashAmount = amount ?? invoice.Balance,
+                CashSide = CashSide.Debit,
                 CashAccountId = cashAccount.Id,
                 SubjectCurrencyId = invoice.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"invoice:{invoice.Id}" }]
@@ -50,15 +50,15 @@ namespace Billy.Api.Actions
             this BankPayments payments,
             Invoice invoice,
             Account cashAccount,
-            DateTime? entryDate = null,
-            double? amount = null) =>
+            DateOnly? entryDate = null,
+            decimal? amount = null) =>
             payments.CreateAsync(new BankPayment
             {
                 OrganizationId = invoice.OrganizationId,
                 ContactId = invoice.ContactId,
-                EntryDate = entryDate ?? DateTime.Today,
-                CashAmount = amount ?? (double)invoice.Balance,
-                CashSide = CashSide.debit,
+                EntryDate = entryDate ?? DateOnly.FromDateTime(DateTime.Today),
+                CashAmount = amount ?? invoice.Balance,
+                CashSide = CashSide.Debit,
                 CashAccountId = cashAccount.Id,
                 SubjectCurrencyId = invoice.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"invoice:{invoice.Id}" }]
@@ -78,15 +78,15 @@ namespace Billy.Api.Actions
             this BankPayments payments,
             Bill bill,
             Account cashAccount,
-            DateTime? entryDate = null,
-            double? amount = null) =>
+            DateOnly? entryDate = null,
+            decimal? amount = null) =>
             payments.Create(new BankPayment
             {
                 OrganizationId = bill.OrganizationId,
                 ContactId = bill.ContactId,
-                EntryDate = entryDate ?? DateTime.Today,
-                CashAmount = amount ?? (double)bill.Balance,
-                CashSide = CashSide.credit,
+                EntryDate = entryDate ?? DateOnly.FromDateTime(DateTime.Today),
+                CashAmount = amount ?? bill.Balance,
+                CashSide = CashSide.Credit,
                 CashAccountId = cashAccount.Id,
                 SubjectCurrencyId = bill.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"bill:{bill.Id}" }]
@@ -106,15 +106,15 @@ namespace Billy.Api.Actions
             this BankPayments payments,
             Bill bill,
             Account cashAccount,
-            DateTime? entryDate = null,
-            double? amount = null) =>
+            DateOnly? entryDate = null,
+            decimal? amount = null) =>
             payments.CreateAsync(new BankPayment
             {
                 OrganizationId = bill.OrganizationId,
                 ContactId = bill.ContactId,
-                EntryDate = entryDate ?? DateTime.Today,
-                CashAmount = amount ?? (double)bill.Balance,
-                CashSide = CashSide.credit,
+                EntryDate = entryDate ?? DateOnly.FromDateTime(DateTime.Today),
+                CashAmount = amount ?? bill.Balance,
+                CashSide = CashSide.Credit,
                 CashAccountId = cashAccount.Id,
                 SubjectCurrencyId = bill.CurrencyId,
                 Associations = [new BankPaymentAssociation { SubjectReference = $"bill:{bill.Id}" }]

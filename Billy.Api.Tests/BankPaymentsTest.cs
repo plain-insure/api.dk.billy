@@ -35,9 +35,9 @@ namespace Billy.Api.Tests
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
-            EntryDate = DateTime.Today,
-            CashAmount = 1.00,
-            CashSide = CashSide.debit,
+            EntryDate = DateOnly.FromDateTime(DateTime.Today),
+            CashAmount = 1.00m,
+            CashSide = CashSide.Debit,
             CashAccountId = cashAccount.Id,
             SubjectCurrencyId = cashAccount.CurrencyId
         };

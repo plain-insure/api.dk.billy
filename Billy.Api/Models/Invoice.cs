@@ -49,7 +49,7 @@ namespace Billy.Api.Models
         public string OrganizationId { get; set; }
 
         /// <summary>
-        /// Invoice type: <c>"invoice"</c> for a normal sales invoice or <c>"creditNote"</c> for a credit note.
+        /// Invoice type: <c>"invoice"</c> for a normal sales invoice or <c>"creditNote"</c> for a Credit note.
         /// </summary>
         public string Type { get; set; }
 
@@ -135,7 +135,7 @@ namespace Billy.Api.Models
         [JsonIgnoreOnWrite]
         public bool IsPaid { get; set; }
 
-        /// <summary>ID of the invoice that this credit note credits, when this invoice is a credit note.</summary>
+        /// <summary>ID of the invoice that this Credit note credits, when this invoice is a Credit note.</summary>
         public string? CreditedInvoiceId { get; set; }
 
         /// <summary>Message displayed to the customer on the invoice (e.g. a personal note or reference).</summary>

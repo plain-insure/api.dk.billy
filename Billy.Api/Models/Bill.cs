@@ -37,7 +37,7 @@ namespace Billy.Api.Models
         public string OrganizationId { get; set; }
 
         /// <summary>
-        /// Bill type: <c>"bill"</c> for a normal supplier invoice or <c>"creditNote"</c> for a credit note.
+        /// Bill type: <c>"bill"</c> for a normal supplier invoice or <c>"creditNote"</c> for a Credit note.
         /// </summary>
         public string? Type { get; set; }
 
@@ -55,19 +55,16 @@ namespace Billy.Api.Models
         public string? ContactName { get; set; }
 
         /// <summary>Accounting entry date (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime EntryDate { get; set; }
+        public DateOnly EntryDate { get; set; }
 
         /// <summary>ID of the bank account used when recording payment, if the bill has been paid.</summary>
         public string? PaymentAccountId { get; set; }
 
         /// <summary>Date the bill was paid (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime PaymentDate { get; set; }
+        public DateOnly? PaymentDate { get; set; }
 
         /// <summary>Payment due date (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
         /// <summary>
         /// When <c>true</c>, the bill is a "bare" bill with no line items — amount and description
@@ -76,7 +73,7 @@ namespace Billy.Api.Models
         public bool IsBare { get; set; }
 
         /// <summary>Current workflow state of the bill.</summary>
-        public BillStates State { get; set; }
+        public State State { get; set; }
 
         /// <summary>The supplier's own invoice number, used for cross-referencing.</summary>
         public string? SuppliersInvoiceNo { get; set; }
@@ -84,16 +81,16 @@ namespace Billy.Api.Models
         /// <summary>
         /// Whether line amounts include tax: <c>"excl"</c> for tax-exclusive, <c>"incl"</c> for tax-inclusive.
         /// </summary>
-        public string TaxMode { get; set; }
+        public TaxMode TaxMode { get; set; }
 
         /// <summary>Internal voucher number assigned by Billy for accounting purposes.</summary>
         public string? VoucherNo { get; set; }
 
         /// <summary>Total net amount (excluding tax) in the bill's currency. Computed from lines; read-only.</summary>
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>Total tax amount in the bill's currency. Computed from lines; read-only.</summary>
-        public double Tax { get; set; }
+        public decimal Tax { get; set; }
 
         /// <summary>ISO 4217 currency code for this bill (e.g. <c>"DKK"</c>, <c>"EUR"</c>).</summary>
         public string? CurrencyId { get; set; }
@@ -107,10 +104,10 @@ namespace Billy.Api.Models
         internal Currency? _currency;
 
         /// <summary>Exchange rate relative to the organization's base currency at the time of the bill.</summary>
-        public int ExchangeRate { get; set; }
+        public decimal ExchangeRate { get; set; }
 
         /// <summary>Outstanding amount remaining to be paid, in the bill's currency.</summary>
-        public int Balance { get; set; }
+        public decimal Balance { get; set; }
 
         /// <summary><c>true</c> when the full bill amount has been settled.</summary>
         public bool IsPaid { get; set; }
@@ -118,7 +115,7 @@ namespace Billy.Api.Models
         /// <summary>Description text used on bare bills (no line items).</summary>
         public string? LineDescription { get; set; }
 
-        /// <summary>ID of the original bill that this bill credits, when this is a credit note.</summary>
+        /// <summary>ID of the original bill that this bill credits, when this is a Credit note.</summary>
         public string? CreditedBillId { get; set; }
 
         /// <summary>Source system identifier; used for integrations to track the origin of the bill.</summary>
@@ -136,35 +133,5 @@ namespace Billy.Api.Models
         /// <summary>Server-assigned IDs of the line items. Read-only.</summary>
         [JsonIgnoreOnWrite]
         public List<string>? LineIds { get; set; }
-    }
-
-    /// <summary>
-    /// A single line item on a <see cref="Bill"/>, representing a purchased product or expense category.
-    /// </summary>
-    public class BillLine : IEntity
-    {
-        /// <summary>Unique identifier of the line item.</summary>
-        public string? Id { get; set; }
-
-        /// <summary>ID of the <see cref="Bill"/> this line belongs to.</summary>
-        public string? BillId { get; set; }
-
-        /// <summary>ID of the ledger <see cref="Account"/> to post this line to.</summary>
-        public string AccountId { get; set; }
-
-        /// <summary>ID of the <see cref="TaxRate"/> applied to this line, or <c>null</c> if tax-exempt.</summary>
-        public string? TaxRateId { get; set; }
-
-        /// <summary>Description of the line item.</summary>
-        public string? Description { get; set; }
-
-        /// <summary>Net amount for this line (excluding tax), in the bill's currency.</summary>
-        public int Amount { get; set; }
-
-        /// <summary>Tax amount for this line, in the bill's currency.</summary>
-        public double Tax { get; set; }
-
-        /// <summary>Display order of this line relative to other lines on the same bill (lower = first).</summary>
-        public int Priority { get; set; }
     }
 }
