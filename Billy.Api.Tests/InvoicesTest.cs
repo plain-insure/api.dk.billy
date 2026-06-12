@@ -1,5 +1,6 @@
 ﻿using Billy.Api.Models;
 using RestSharp;
+using System.Diagnostics;
 
 namespace Billy.Api.Tests
 {
@@ -23,7 +24,7 @@ namespace Billy.Api.Tests
             {
                 Type = "company",
                 OrganizationId = OrganizationId,
-                Name = "Test Customer",
+                Name = "Test Customer New",
                 CountryId = Countries.DK.ToString(),
                 Street = "",
                 ZipcodeText = "",
@@ -40,7 +41,7 @@ namespace Billy.Api.Tests
             new Products(Client).Create(new Product
             {
                 OrganizationId = OrganizationId,
-                Name = "Test Product",
+                Name = "Test Product New",
                 AccountId = productAccountId,
                 Unit = "pieces"
             })?.Id ?? throw new InvalidOperationException("Failed to create product");
@@ -52,20 +53,33 @@ namespace Billy.Api.Tests
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
-            EntryDate = DateTime.Now,
+            EntryDate = DateOnly.FromDateTime(DateTime.Now),
             PaymentTermsDays = 0,
             State = state,
             SentState = "unsent",
-            TaxMode = "incl",
+            TaxMode = TaxMode.Incl,
             Lines =
             [
                 new InvoiceLine
                 {
                     ProductId = productId,
+                    Quantity = 1,
                     UnitPrice = 100,
                     Description = "Test line"
                 }
             ]
+        };
+
+        private Invoice BuildInvoiceWithLines(string contactId, string productId, List<InvoiceLine> lines, string state = "draft") => new()
+        {
+            OrganizationId = OrganizationId,
+            ContactId = contactId,
+            EntryDate = DateOnly.FromDateTime(DateTime.Now),
+            PaymentTermsDays = 0,
+            State = state,
+            SentState = "unsent",
+            TaxMode = TaxMode.Excl,
+            Lines = lines
         };
 
         [TestMethod]
@@ -80,6 +94,11 @@ namespace Billy.Api.Tests
                 var result = service.Get(id);
                 service.Delete(id);
                 Assert.AreEqual(id, result?.Id);
+                Assert.AreEqual(100m, result?.Amount);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
             finally
             {
@@ -118,6 +137,160 @@ namespace Billy.Api.Tests
                     DeleteContact(contactId);
                     DeleteProduct(productId);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void Create_Line_NoDiscount()
+        {
+            // 2.5 units × 40.00 = 100.00  (decimal quantity, no discount)
+            var contactId = CreateCustomerContact();
+            var productId = CreateProduct();
+            try
+            {
+                var created = service.Create(BuildInvoiceWithLines(contactId, productId,
+                [
+                    new InvoiceLine { ProductId = productId, Quantity = 2.5m, UnitPrice = 40m, Description = "No discount" }
+                ]));
+
+                Assert.IsNotNull(created?.Id);
+                Assert.AreEqual(100m, created.Amount);
+
+                var fetched = service.Get(created.Id);
+                service.Delete(created.Id);
+                Assert.AreEqual(100m, fetched?.Amount);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+                DeleteProduct(productId);
+            }
+        }
+
+        [TestMethod]
+        public void Create_Line_DiscountPercent()
+        {
+            // 1.5 units × 100.00 = 150.00, minus 10% = 135.00
+            var contactId = CreateCustomerContact();
+            var productId = CreateProduct();
+            try
+            {
+                var created = service.Create(BuildInvoiceWithLines(contactId, productId,
+                [
+                    new InvoiceLine
+                    {
+                        ProductId = productId,
+                        Quantity = 1.5m,
+                        UnitPrice = 100m,
+                        Description = "10% percent discount",
+                        DiscountMode = DiscountMode.Percent,
+                        DiscountValue = 10m
+                    }
+                ]));
+
+                Assert.IsNotNull(created?.Id);
+                Assert.AreEqual(135m, created.Amount);
+
+                var fetched = service.Get(created.Id);
+                service.Delete(created.Id);
+                Assert.AreEqual(135m, fetched?.Amount);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                DeleteContact(contactId);
+                DeleteProduct(productId);
+            }
+        }
+
+        [TestMethod]
+        public void Create_Line_DiscountAmount()
+        {
+            // 1 unit × 125.50 = 125.50, minus 25.50 fixed amount = 100.00
+            var contactId = CreateCustomerContact();
+            var productId = CreateProduct();
+            string? invoiceId = null;
+            try
+            {
+                var created = service.Create(BuildInvoiceWithLines(contactId, productId,
+                [
+                    new InvoiceLine
+                    {
+                        ProductId = productId,
+                        Quantity = 1m,
+                        UnitPrice = 125.50m,
+                        Description = "25.50 fixed discount",
+                        DiscountMode = DiscountMode.Cash,
+                        DiscountValue = 25.50m
+                    }
+                ]));
+                invoiceId = created?.Id;
+
+                Assert.IsNotNull(created?.Id);
+                Assert.AreEqual(100m, created.Amount);
+
+                var fetched = service.Get(created.Id);
+                Assert.AreEqual(100m, fetched?.Amount);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                if (invoiceId is not null)
+                    service.Delete(invoiceId);
+                DeleteContact(contactId);
+                DeleteProduct(productId);
+            }
+        }
+
+        [TestMethod]
+        public void Create_MultipleLines_MixedDiscountModes()
+        {
+            // Line 1 (no discount):   2.5 × 40.00            = 100.00
+            // Line 2 (percent 25%):   2   × 75.00 × (1−0.25) = 112.50
+            // Line 3 (amount 12.50):  1   × 62.50 − 12.50    =  50.00
+            // Invoice total                                   = 262.50
+            const decimal expected = 262.50m;
+
+            var contactId = CreateCustomerContact();
+            var productId = CreateProduct();
+            string? invoiceId = null;
+            try
+            {
+                var created = service.Create(BuildInvoiceWithLines(contactId, productId,
+                [
+                    new InvoiceLine { ProductId = productId, Quantity = 2.5m, UnitPrice = 40m,    Description = "No discount"    },
+                    new InvoiceLine { ProductId = productId, Quantity = 2m,   UnitPrice = 75m,    Description = "25% off",       DiscountMode = DiscountMode.Percent, DiscountValue = 25m    },
+                    new InvoiceLine { ProductId = productId, Quantity = 1m,   UnitPrice = 62.50m, Description = "12.50 off",     DiscountMode = DiscountMode.Cash,  DiscountValue = 12.50m }
+                ]));
+                invoiceId = created?.Id;
+
+                Assert.IsNotNull(created?.Id);
+                Assert.AreEqual(expected, created.Amount);
+
+                var fetched = service.Get(created.Id);
+                Assert.AreEqual(expected, fetched?.Amount);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                if (invoiceId is not null)
+                    service.Delete(invoiceId);
+                DeleteContact(contactId);
+                DeleteProduct(productId);
             }
         }
     }

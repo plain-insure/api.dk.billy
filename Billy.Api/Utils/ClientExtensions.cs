@@ -1,4 +1,5 @@
 using RestSharp;
+using RestSharp.Serializers.Json;
 
 namespace Billy.Api.Utils
 {
@@ -48,7 +49,7 @@ namespace Billy.Api.Utils
         {
             httpClient.BaseAddress = BillyApiBaseUri;
             var client = debugLog is null
-                ? new RestClient(httpClient)
+                ? new RestClient(httpClient, configureSerialization: s => s.UseSystemTextJson(RestJsonOptions.Instance))
                 : new RestClient(
                     httpClient,
                     false,
@@ -57,7 +58,7 @@ namespace Billy.Api.Utils
                         options.BaseUrl = BillyApiBaseUri;
                         options.Interceptors = [new BillyHttpDebugInterceptor(debugLog)];
                     },
-                    null);
+                    s => s.UseSystemTextJson(RestJsonOptions.Instance));
             client.AddBillyAuthentication(key);
             return client;
         }
@@ -86,10 +87,10 @@ namespace Billy.Api.Utils
         public static RestClient CreateBillyClient(string key, Action<string>? debugLog)
         {
             var client = debugLog is null
-                ? new RestClient(BillyApiBaseUri)
+                ? new RestClient(BillyApiBaseUri, configureSerialization: s => s.UseSystemTextJson(RestJsonOptions.Instance))
                 : new RestClient(
-                    BillyApiBaseUri,
-                    options => options.Interceptors = [new BillyHttpDebugInterceptor(debugLog)]);
+                    new RestClientOptions(BillyApiBaseUri) { Interceptors = [new BillyHttpDebugInterceptor(debugLog)] },
+                    configureSerialization: s => s.UseSystemTextJson(RestJsonOptions.Instance));
             client.AddBillyAuthentication(key);
             return client;
         }

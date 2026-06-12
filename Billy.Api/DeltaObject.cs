@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Billy.Api
 {
+
     /// <summary>
     /// Tracks a set of explicitly assigned property changes for a partial PUT request.
     /// Only the properties you call <see cref="Set{TProperty}"/> on are included in the request body,
@@ -29,7 +30,7 @@ namespace Billy.Api
     public class DeltaObject<T> where T : class
     {
         // Tracks the property name and the explicitly assigned value
-        private readonly Dictionary<string, object?> _modifications = new(StringComparer.Ordinal);
+        protected readonly Dictionary<string, object?> _modifications = new(StringComparer.Ordinal);
 
         // Per-T cache of camelCase property name → PropertyInfo, built once per concrete type
         private static readonly Dictionary<string, PropertyInfo> _typePropertyCache =
@@ -90,6 +91,15 @@ namespace Billy.Api
         /// <returns>This instance, enabling fluent chaining.</returns>
         public DeltaObject<T> Set<TProperty>(Expression<Func<T, TProperty>> propertyExpression, TProperty value)
         {
+            var name = GetPropertyNameFromExpression(propertyExpression);
+            // Store the property name and the new value (can be null)
+            _modifications[JsonNamingPolicy.CamelCase.ConvertName(name)] = value;
+            return this;
+        }
+
+        protected string GetPropertyNameFromExpression<TProperty>(Expression<Func<T, TProperty>> propertyExpression)
+        {
+
             ArgumentNullException.ThrowIfNull(propertyExpression);
 
             if (propertyExpression.Body is not MemberExpression memberExpression)
@@ -109,12 +119,8 @@ namespace Billy.Api
             {
                 throw new ArgumentException("Member expression must be a property.", nameof(propertyExpression));
             }
-
-            // Store the property name and the new value (can be null)
-            _modifications[JsonNamingPolicy.CamelCase.ConvertName(propertyInfo.Name)] = value;
-            return this;
+            return propertyInfo.Name;
         }
-
 
         internal Dictionary<string, object?> GetModifications() => _modifications;
 

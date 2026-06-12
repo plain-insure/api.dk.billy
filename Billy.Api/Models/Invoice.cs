@@ -67,8 +67,7 @@ namespace Billy.Api.Models
         public string? AttContactPersonId { get; set; }
 
         /// <summary>Invoice issue date (date-only, serialized as <c>yyyy-MM-dd</c>).</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
-        public DateTime EntryDate { get; set; }
+        public DateOnly EntryDate { get; set; }
 
         /// <summary>
         /// Payment terms mode: <c>"net"</c>, <c>"dueDate"</c>, <c>"paid"</c>, etc.
@@ -80,9 +79,8 @@ namespace Billy.Api.Models
         public int? PaymentTermsDays { get; set; }
 
         /// <summary>Payment due date (date-only, serialized as <c>yyyy-MM-dd</c>). Skipped when default.</summary>
-        [JsonConverter(typeof(Converters.BillyDateConverter))]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public DateTime DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
         /// <summary>
         /// Workflow state: <c>"draft"</c>, <c>"approved"</c>, or <c>"voided"</c>.
@@ -109,29 +107,29 @@ namespace Billy.Api.Models
         /// <summary>
         /// Whether line amounts include tax: <c>"excl"</c> for tax-exclusive, <c>"incl"</c> for tax-inclusive.
         /// </summary>
-        public string TaxMode { get; set; }
+        public TaxMode TaxMode { get; set; }
 
         /// <summary>Total net amount (excluding tax) in the invoice's currency. Computed from lines; read-only.</summary>
         [JsonIgnoreOnWrite]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>Total tax amount in the invoice's currency. Computed from lines; read-only.</summary>
         [JsonIgnoreOnWrite]
-        public double Tax { get; set; }
+        public decimal Tax { get; set; }
 
         /// <summary>Total gross amount (including tax) in the invoice's currency. Computed from lines; read-only.</summary>
         [JsonIgnoreOnWrite]
-        public double GrossAmount { get; set; }
+        public decimal GrossAmount { get; set; }
 
         /// <summary>ISO 4217 currency code for this invoice (e.g. <c>"DKK"</c>, <c>"EUR"</c>).</summary>
         public string CurrencyId { get; set; }
 
         /// <summary>Exchange rate relative to the organization's base currency at the time of the invoice.</summary>
-        public int ExchangeRate { get; set; }
+        public decimal ExchangeRate { get; set; }
 
         /// <summary>Outstanding amount remaining to be paid, in the invoice's currency. Read-only.</summary>
         [JsonIgnoreOnWrite]
-        public int Balance { get; set; }
+        public decimal Balance { get; set; }
 
         /// <summary><c>true</c> when the full invoice amount has been settled. Read-only.</summary>
         [JsonIgnoreOnWrite]
@@ -175,5 +173,4 @@ namespace Billy.Api.Models
         /// </summary>
         public List<InvoiceLine> Lines { get; set; }
     }
-
 }
