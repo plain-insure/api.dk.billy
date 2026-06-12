@@ -49,14 +49,14 @@ namespace Billy.Api.Tests
         private void DeleteProduct(string productId) =>
             new Products(Client).Delete(productId);
 
-        private Invoice BuildInvoice(string contactId, string productId, string state = "draft") => new()
+        private Invoice BuildInvoice(string contactId, string productId, State state = State.Draft) => new()
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
             EntryDate = DateOnly.FromDateTime(DateTime.Now),
             PaymentTermsDays = 0,
             State = state,
-            SentState = "unsent",
+            SentState = SentState.Unsent,
             TaxMode = TaxMode.Incl,
             Lines =
             [
@@ -70,14 +70,14 @@ namespace Billy.Api.Tests
             ]
         };
 
-        private Invoice BuildInvoiceWithLines(string contactId, string productId, List<InvoiceLine> lines, string state = "draft") => new()
+        private Invoice BuildInvoiceWithLines(string contactId, string productId, List<InvoiceLine> lines, State state = State.Draft) => new()
         {
             OrganizationId = OrganizationId,
             ContactId = contactId,
             EntryDate = DateOnly.FromDateTime(DateTime.Now),
             PaymentTermsDays = 0,
             State = state,
-            SentState = "unsent",
+            SentState = SentState.Unsent,
             TaxMode = TaxMode.Excl,
             Lines = lines
         };
@@ -124,7 +124,7 @@ namespace Billy.Api.Tests
             var productId = CreateProduct();
             try
             {
-                var id = service.Create(BuildInvoice(contactId, productId, draft ? "draft" : "approved"))?.Id;
+                var id = service.Create(BuildInvoice(contactId, productId, draft ? State.Draft : State.Approved))?.Id;
                 Assert.IsNotNull(id);
                 if (draft)
                     service.Delete(id);

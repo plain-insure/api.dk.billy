@@ -79,9 +79,9 @@ namespace Billy.Api.Tests
                 ContactId = customerContactId,
                 EntryDate = DateOnly.FromDateTime(DateTime.Now),
                 PaymentTermsDays = 0,
-                State = "approved",
-                SentState = "unsent",
-                TaxMode = TaxMode.Incl,
+                State = State.Approved,
+                SentState = SentState.Unsent,
+                TaxMode = TaxMode.Excl,
                 Lines = [new InvoiceLine { ProductId = productId, UnitPrice = 100, Description = "Test line" }]
             })?.Id ?? throw new InvalidOperationException("Failed to create invoice");
 

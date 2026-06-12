@@ -51,7 +51,7 @@ namespace Billy.Api.Models
         /// <summary>
         /// Invoice type: <c>"invoice"</c> for a normal sales invoice or <c>"creditNote"</c> for a Credit note.
         /// </summary>
-        public string Type { get; set; }
+        public InvoiceType Type { get; set; }
 
         /// <summary>Timestamp when the invoice was created. Server-assigned; read-only.</summary>
         [JsonIgnoreOnWrite]
@@ -82,15 +82,11 @@ namespace Billy.Api.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public DateOnly? DueDate { get; set; }
 
-        /// <summary>
-        /// Workflow state: <c>"draft"</c>, <c>"approved"</c>, or <c>"voided"</c>.
-        /// </summary>
-        public string State { get; set; }
 
         /// <summary>
         /// Email delivery state: <c>"unsent"</c>, <c>"sent"</c>, or <c>"opened"</c>.
         /// </summary>
-        public string SentState { get; set; }
+        public SentState SentState { get; set; }
 
         /// <summary>External identifier for cross-referencing with other systems.</summary>
         public string? ExternalId { get; set; }
@@ -103,6 +99,11 @@ namespace Billy.Api.Models
         /// Assigned by the API on approval based on the organization's invoice number sequence.
         /// </summary>
         public string InvoiceNo { get; set; }
+
+        /// <summary>
+        /// Workflow state: <c>"draft"</c>, <c>"approved"</c>, or <c>"voided"</c>.
+        /// </summary>
+        public State State { get; set; }
 
         /// <summary>
         /// Whether line amounts include tax: <c>"excl"</c> for tax-exclusive, <c>"incl"</c> for tax-inclusive.
