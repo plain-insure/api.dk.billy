@@ -105,6 +105,8 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     needs: [ validate_nuget ] # also needs the run_test job when that is enabled
+    permissions:
+      contents: write
     steps:
       # Download the NuGet package created in the previous job
       - uses: actions/download-artifact@v4
